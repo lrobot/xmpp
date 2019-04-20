@@ -20,11 +20,20 @@
 	     meta = #{} :: map()}).
 -type iq() :: #iq{}.
 
+%% qingquan learn from message_body
+-record(kvitem, {
+   kvkey = <<>> :: binary(),
+   kvvalue = <<>> :: binary()
+}).
+-type kvitem() :: #kvitem{}.
+
 -record(message, {id = <<>> :: binary(),
                   type = normal :: message_type(),
                   lang = <<>> :: binary(),
                   from :: undefined | jid:jid(),
                   to :: undefined | jid:jid(),
+                  mechanism = <<>> :: binary(),
+                  timestamp = <<>> :: binary(),
                   subject = [] :: [#text{}],
                   body = [] :: [#text{}],
                   thread :: undefined | binary(),
@@ -39,6 +48,8 @@
                    to :: undefined | jid:jid(),
                    show :: undefined | 'away' | 'chat' | 'dnd' | 'xa',
                    status = [] :: [#text{}],
+                   action = <<>> :: binary(),
+                   title = <<>> :: binary(),
                    priority :: undefined | integer(),
                    sub_els = [] :: [xmpp_element() | fxml:xmlel()],
 		   meta = #{} :: map()}).
@@ -468,13 +479,6 @@
 -record(sasl_abort, {}).
 -type sasl_abort() :: #sasl_abort{}.
 
--record(xevent, {offline = false :: boolean(),
-                 delivered = false :: boolean(),
-                 displayed = false :: boolean(),
-                 composing = false :: boolean(),
-                 id :: 'undefined' | binary()}).
--type xevent() :: #xevent{}.
-
 -record(vcard_email, {home = false :: boolean(),
                       work = false :: boolean(),
                       internet = false :: boolean(),
@@ -502,6 +506,16 @@
                       put :: 'undefined' | binary(),
                       xmlns = <<>> :: binary()}).
 -type upload_slot() :: #upload_slot{}.
+
+-record(xevent, {offline = false :: boolean(),
+                 read = false :: boolean(),
+                 received = false :: boolean(),
+                 delivered = false :: boolean(),
+                 displayed = false :: boolean(),
+                 composing = false :: boolean(),
+                 id :: 'undefined' | binary(),
+                 msgid :: 'undefined' | binary()}).
+-type xevent() :: #xevent{}.
 
 -record(mix_participant, {jid :: jid:jid(),
                           nick = <<>> :: binary()}).
@@ -552,6 +566,10 @@
 -record(bind, {jid :: undefined | jid:jid(),
                resource = <<>> :: binary()}).
 -type bind() :: #bind{}.
+
+-record(push_info_register, {push_info_token_key = <<>> :: binary(),
+                             push_info_device :: 'undefined' | binary()}).
+-type push_info_register() :: #push_info_register{}.
 
 -record(rosterver_feature, {}).
 -type rosterver_feature() :: #rosterver_feature{}.
@@ -638,6 +656,14 @@
                       reason = <<>> :: binary(),
                       password :: 'undefined' | binary()}).
 -type muc_destroy() :: #muc_destroy{}.
+
+-record(muc_user_ul, {decline :: 'undefined' | #muc_decline{},
+                      destroy :: 'undefined' | #muc_destroy{},
+                      invites = [] :: [#muc_invite{}],
+                      items = [] :: [#muc_item{}],
+                      status_codes = [] :: [pos_integer()],
+                      password :: 'undefined' | binary()}).
+-type muc_user_ul() :: #muc_user_ul{}.
 
 -record(muc_user, {decline :: 'undefined' | #muc_decline{},
                    destroy :: 'undefined' | #muc_destroy{},
@@ -857,6 +883,11 @@
 -record(sasl_mechanisms, {list = [] :: [binary()]}).
 -type sasl_mechanisms() :: #sasl_mechanisms{}.
 
+-record(kvgroup, {kvgname = <<>> :: binary(),
+                  kvitems = [] :: [#kvitem{}],
+                  kvgvalue = <<>> :: binary()}).
+-type kvgroup() :: #kvgroup{}.
+
 -record(sm_failed, {reason :: atom() | #gone{} | #redirect{},
                     text = [] :: [#text{}],
                     h :: 'undefined' | non_neg_integer(),
@@ -884,6 +915,7 @@
                        type :: 'group' | 'jid' | 'subscription' | 'undefined',
                        value = <<>> :: binary(),
                        message = false :: boolean(),
+                       push = false :: boolean(),
                        iq = false :: boolean(),
                        presence_in = false :: boolean(),
                        presence_out = false :: boolean()}).
@@ -947,13 +979,6 @@
                         xdata_option() |
                         version() |
                         sm_a() |
-                        stanza_id() |
-                        starttls_proceed() |
-                        forwarded() |
-                        client_id() |
-                        sm_resumed() |
-                        xevent() |
-                        privacy_list() |
                         carbons_sent() |
                         mam_archived() |
                         p1_rebind() |
@@ -966,14 +991,12 @@
                         block_list() |
                         delegated() |
                         rsm_set() |
-                        'see-other-host'() |
-                        hint() |
-                        stream_start() |
                         text() |
                         vcard_org() |
                         shim() |
                         search_item() |
                         offline_item() |
+                        kvitem() |
                         feature_sm() |
                         roster_item() |
                         muc_item() |
@@ -999,6 +1022,7 @@
                         pubsub() |
                         muc_owner() |
                         muc_actor() |
+                        push_info_register() |
                         ps_error() |
                         starttls_failure() |
                         sasl_challenge() |
@@ -1054,6 +1078,7 @@
                         privacy_item() |
                         disco_item() |
                         ps_item() |
+                        kvgroup() |
                         mam_prefs() |
                         sasl_mechanisms() |
                         caps() |
@@ -1072,8 +1097,9 @@
                         csi() |
                         delegation_query() |
                         mam_query() |
-                        bookmark_url() |
                         vcard_email() |
+                        muc_user_ul() |
+                        bookmark_url() |
                         vcard_label() |
                         vcard_logo() |
                         disco_info() |
@@ -1108,4 +1134,14 @@
                         ps_affiliation() |
                         mam_fin() |
                         bob_data() |
-                        media().
+                        media() |
+                        stanza_id() |
+                        starttls_proceed() |
+                        forwarded() |
+                        client_id() |
+                        sm_resumed() |
+                        xevent() |
+                        privacy_list() |
+                        'see-other-host'() |
+                        hint() |
+                        stream_start().

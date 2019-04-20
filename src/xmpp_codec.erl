@@ -356,10 +356,22 @@ decode({xmlel, _name, _attrs, _} = _el, TopXMLNS,
 	  decode_xevent(<<"jabber:x:event">>, IgnoreEls, _el);
       {<<"x">>, <<>>, <<"jabber:x:event">>} ->
 	  decode_xevent(<<"jabber:x:event">>, IgnoreEls, _el);
+      {<<"msgid">>, <<"jabber:x:event">>, _} ->
+	  decode_xevent_msgid(<<"jabber:x:event">>, IgnoreEls,
+			      _el);
+      {<<"msgid">>, <<>>, <<"jabber:x:event">>} ->
+	  decode_xevent_msgid(<<"jabber:x:event">>, IgnoreEls,
+			      _el);
       {<<"id">>, <<"jabber:x:event">>, _} ->
 	  decode_xevent_id(<<"jabber:x:event">>, IgnoreEls, _el);
       {<<"id">>, <<>>, <<"jabber:x:event">>} ->
 	  decode_xevent_id(<<"jabber:x:event">>, IgnoreEls, _el);
+      {<<"read">>, <<"jabber:x:event">>, _} ->
+	  decode_xevent_read(<<"jabber:x:event">>, IgnoreEls,
+			     _el);
+      {<<"read">>, <<>>, <<"jabber:x:event">>} ->
+	  decode_xevent_read(<<"jabber:x:event">>, IgnoreEls,
+			     _el);
       {<<"composing">>, <<"jabber:x:event">>, _} ->
 	  decode_xevent_composing(<<"jabber:x:event">>, IgnoreEls,
 				  _el);
@@ -378,6 +390,12 @@ decode({xmlel, _name, _attrs, _} = _el, TopXMLNS,
       {<<"delivered">>, <<>>, <<"jabber:x:event">>} ->
 	  decode_xevent_delivered(<<"jabber:x:event">>, IgnoreEls,
 				  _el);
+      {<<"received">>, <<"jabber:x:event">>, _} ->
+	  decode_xevent_received(<<"jabber:x:event">>, IgnoreEls,
+				 _el);
+      {<<"received">>, <<>>, <<"jabber:x:event">>} ->
+	  decode_xevent_received(<<"jabber:x:event">>, IgnoreEls,
+				 _el);
       {<<"offline">>, <<"jabber:x:event">>, _} ->
 	  decode_xevent_offline(<<"jabber:x:event">>, IgnoreEls,
 				_el);
@@ -927,6 +945,14 @@ decode({xmlel, _name, _attrs, _} = _el, TopXMLNS,
        <<"http://jabber.org/protocol/muc">>} ->
 	  decode_muc_password(<<"http://jabber.org/protocol/muc">>,
 			      IgnoreEls, _el);
+      {<<"query">>, <<"http://jabber.org/protocol/muc#user">>,
+       _} ->
+	  decode_muc_user_ul(<<"http://jabber.org/protocol/muc#user">>,
+			     IgnoreEls, _el);
+      {<<"query">>, <<>>,
+       <<"http://jabber.org/protocol/muc#user">>} ->
+	  decode_muc_user_ul(<<"http://jabber.org/protocol/muc#user">>,
+			     IgnoreEls, _el);
       {<<"x">>, <<"http://jabber.org/protocol/muc#user">>,
        _} ->
 	  decode_muc_user(<<"http://jabber.org/protocol/muc#user">>,
@@ -2756,6 +2782,30 @@ decode({xmlel, _name, _attrs, _} = _el, TopXMLNS,
        <<"urn:ietf:params:xml:ns:xmpp-bind">>} ->
 	  decode_bind_jid(<<"urn:ietf:params:xml:ns:xmpp-bind">>,
 			  IgnoreEls, _el);
+      {<<"register">>,
+       <<"https://android.googleapis.com/gcm">>, _} ->
+	  decode_push_info_register(<<"https://android.googleapis.com/gcm">>,
+				    IgnoreEls, _el);
+      {<<"register">>, <<>>,
+       <<"https://android.googleapis.com/gcm">>} ->
+	  decode_push_info_register(<<"https://android.googleapis.com/gcm">>,
+				    IgnoreEls, _el);
+      {<<"key">>, <<"https://android.googleapis.com/gcm">>,
+       _} ->
+	  decode_push_info_token_key(<<"https://android.googleapis.com/gcm">>,
+				     IgnoreEls, _el);
+      {<<"key">>, <<>>,
+       <<"https://android.googleapis.com/gcm">>} ->
+	  decode_push_info_token_key(<<"https://android.googleapis.com/gcm">>,
+				     IgnoreEls, _el);
+      {<<"device">>, <<"https://android.googleapis.com/gcm">>,
+       _} ->
+	  decode_push_info_device(<<"https://android.googleapis.com/gcm">>,
+				  IgnoreEls, _el);
+      {<<"device">>, <<>>,
+       <<"https://android.googleapis.com/gcm">>} ->
+	  decode_push_info_device(<<"https://android.googleapis.com/gcm">>,
+				  IgnoreEls, _el);
       {<<"error">>, <<"jabber:client">>, _} ->
 	  decode_error(<<"jabber:client">>, IgnoreEls, _el);
       {<<"error">>, <<>>, <<"jabber:client">>} ->
@@ -3098,6 +3148,14 @@ decode({xmlel, _name, _attrs, _} = _el, TopXMLNS,
       {<<"subject">>, <<>>, <<"jabber:component:accept">>} ->
 	  decode_message_subject(<<"jabber:component:accept">>,
 				 IgnoreEls, _el);
+      {<<"kvgroup">>, <<"jabber:client">>, _} ->
+	  decode_kvgroup(<<"jabber:client">>, IgnoreEls, _el);
+      {<<"kvgroup">>, <<>>, <<"jabber:client">>} ->
+	  decode_kvgroup(<<"jabber:client">>, IgnoreEls, _el);
+      {<<"kvitem">>, <<"jabber:client">>, _} ->
+	  decode_kvitem(<<"jabber:client">>, IgnoreEls, _el);
+      {<<"kvitem">>, <<>>, <<"jabber:client">>} ->
+	  decode_kvitem(<<"jabber:client">>, IgnoreEls, _el);
       {<<"iq">>, <<"jabber:client">>, _} ->
 	  decode_iq(<<"jabber:client">>, IgnoreEls, _el);
       {<<"iq">>, <<>>, <<"jabber:client">>} ->
@@ -3276,6 +3334,12 @@ decode({xmlel, _name, _attrs, _} = _el, TopXMLNS,
       {<<"iq">>, <<>>, <<"jabber:iq:privacy">>} ->
 	  decode_privacy_iq(<<"jabber:iq:privacy">>, IgnoreEls,
 			    _el);
+      {<<"push">>, <<"jabber:iq:privacy">>, _} ->
+	  decode_privacy_push(<<"jabber:iq:privacy">>, IgnoreEls,
+			      _el);
+      {<<"push">>, <<>>, <<"jabber:iq:privacy">>} ->
+	  decode_privacy_push(<<"jabber:iq:privacy">>, IgnoreEls,
+			      _el);
       {<<"message">>, <<"jabber:iq:privacy">>, _} ->
 	  decode_privacy_message(<<"jabber:iq:privacy">>,
 				 IgnoreEls, _el);
@@ -3551,14 +3615,20 @@ is_known_tag({xmlel, _name, _attrs, _} = _el,
       {<<"x">>, <<>>, <<"jabber:x:expire">>} -> true;
       {<<"x">>, <<"jabber:x:event">>, _} -> true;
       {<<"x">>, <<>>, <<"jabber:x:event">>} -> true;
+      {<<"msgid">>, <<"jabber:x:event">>, _} -> true;
+      {<<"msgid">>, <<>>, <<"jabber:x:event">>} -> true;
       {<<"id">>, <<"jabber:x:event">>, _} -> true;
       {<<"id">>, <<>>, <<"jabber:x:event">>} -> true;
+      {<<"read">>, <<"jabber:x:event">>, _} -> true;
+      {<<"read">>, <<>>, <<"jabber:x:event">>} -> true;
       {<<"composing">>, <<"jabber:x:event">>, _} -> true;
       {<<"composing">>, <<>>, <<"jabber:x:event">>} -> true;
       {<<"displayed">>, <<"jabber:x:event">>, _} -> true;
       {<<"displayed">>, <<>>, <<"jabber:x:event">>} -> true;
       {<<"delivered">>, <<"jabber:x:event">>, _} -> true;
       {<<"delivered">>, <<>>, <<"jabber:x:event">>} -> true;
+      {<<"received">>, <<"jabber:x:event">>, _} -> true;
+      {<<"received">>, <<>>, <<"jabber:x:event">>} -> true;
       {<<"offline">>, <<"jabber:x:event">>, _} -> true;
       {<<"offline">>, <<>>, <<"jabber:x:event">>} -> true;
       {<<"query">>, <<"jabber:iq:search">>, _} -> true;
@@ -3854,6 +3924,12 @@ is_known_tag({xmlel, _name, _attrs, _} = _el,
 	  true;
       {<<"password">>, <<>>,
        <<"http://jabber.org/protocol/muc">>} ->
+	  true;
+      {<<"query">>, <<"http://jabber.org/protocol/muc#user">>,
+       _} ->
+	  true;
+      {<<"query">>, <<>>,
+       <<"http://jabber.org/protocol/muc#user">>} ->
 	  true;
       {<<"x">>, <<"http://jabber.org/protocol/muc#user">>,
        _} ->
@@ -5045,6 +5121,24 @@ is_known_tag({xmlel, _name, _attrs, _} = _el,
       {<<"jid">>, <<>>,
        <<"urn:ietf:params:xml:ns:xmpp-bind">>} ->
 	  true;
+      {<<"register">>,
+       <<"https://android.googleapis.com/gcm">>, _} ->
+	  true;
+      {<<"register">>, <<>>,
+       <<"https://android.googleapis.com/gcm">>} ->
+	  true;
+      {<<"key">>, <<"https://android.googleapis.com/gcm">>,
+       _} ->
+	  true;
+      {<<"key">>, <<>>,
+       <<"https://android.googleapis.com/gcm">>} ->
+	  true;
+      {<<"device">>, <<"https://android.googleapis.com/gcm">>,
+       _} ->
+	  true;
+      {<<"device">>, <<>>,
+       <<"https://android.googleapis.com/gcm">>} ->
+	  true;
       {<<"error">>, <<"jabber:client">>, _} -> true;
       {<<"error">>, <<>>, <<"jabber:client">>} -> true;
       {<<"error">>, <<"jabber:server">>, _} -> true;
@@ -5258,6 +5352,10 @@ is_known_tag({xmlel, _name, _attrs, _} = _el,
 	  true;
       {<<"subject">>, <<>>, <<"jabber:component:accept">>} ->
 	  true;
+      {<<"kvgroup">>, <<"jabber:client">>, _} -> true;
+      {<<"kvgroup">>, <<>>, <<"jabber:client">>} -> true;
+      {<<"kvitem">>, <<"jabber:client">>, _} -> true;
+      {<<"kvitem">>, <<>>, <<"jabber:client">>} -> true;
       {<<"iq">>, <<"jabber:client">>, _} -> true;
       {<<"iq">>, <<>>, <<"jabber:client">>} -> true;
       {<<"iq">>, <<"jabber:server">>, _} -> true;
@@ -5353,6 +5451,8 @@ is_known_tag({xmlel, _name, _attrs, _} = _el,
 	  true;
       {<<"iq">>, <<"jabber:iq:privacy">>, _} -> true;
       {<<"iq">>, <<>>, <<"jabber:iq:privacy">>} -> true;
+      {<<"push">>, <<"jabber:iq:privacy">>, _} -> true;
+      {<<"push">>, <<>>, <<"jabber:iq:privacy">>} -> true;
       {<<"message">>, <<"jabber:iq:privacy">>, _} -> true;
       {<<"message">>, <<>>, <<"jabber:iq:privacy">>} -> true;
       {<<"ver">>, <<"urn:xmpp:features:rosterver">>, _} ->
@@ -5391,7 +5491,7 @@ encode({roster_query, _, _} = Query, TopXMLNS) ->
     encode_roster_query(Query, TopXMLNS);
 encode({rosterver_feature} = Ver, TopXMLNS) ->
     encode_rosterver_feature(Ver, TopXMLNS);
-encode({privacy_item, _, _, _, _, _, _, _, _} = Item,
+encode({privacy_item, _, _, _, _, _, _, _, _, _} = Item,
        TopXMLNS) ->
     encode_privacy_item(Item, TopXMLNS);
 encode({privacy_list, _, _} = List, TopXMLNS) ->
@@ -5430,11 +5530,15 @@ encode({stats, _, _} = Query, TopXMLNS) ->
     encode_stats(Query, TopXMLNS);
 encode({iq, _, _, _, _, _, _, _} = Iq, TopXMLNS) ->
     encode_iq(Iq, TopXMLNS);
-encode({message, _, _, _, _, _, _, _, _, _, _} =
+encode({kvitem, _, _} = Kvitem, TopXMLNS) ->
+    encode_kvitem(Kvitem, TopXMLNS);
+encode({kvgroup, _, _, _} = Kvgroup, TopXMLNS) ->
+    encode_kvgroup(Kvgroup, TopXMLNS);
+encode({message, _, _, _, _, _, _, _, _, _, _, _, _} =
 	   Message,
        TopXMLNS) ->
     encode_message(Message, TopXMLNS);
-encode({presence, _, _, _, _, _, _, _, _, _, _} =
+encode({presence, _, _, _, _, _, _, _, _, _, _, _, _} =
 	   Presence,
        TopXMLNS) ->
     encode_presence(Presence, TopXMLNS);
@@ -5445,6 +5549,9 @@ encode({redirect, _} = Redirect, TopXMLNS) ->
 encode({stanza_error, _, _, _, _, _, _} = Error,
        TopXMLNS) ->
     encode_error(Error, TopXMLNS);
+encode({push_info_register, _, _} = Register,
+       TopXMLNS) ->
+    encode_push_info_register(Register, TopXMLNS);
 encode({bind, _, _} = Bind, TopXMLNS) ->
     encode_bind(Bind, TopXMLNS);
 encode({legacy_auth, _, _, _, _} = Query, TopXMLNS) ->
@@ -5731,6 +5838,9 @@ encode({muc_invite, _, _, _, _} = Invite, TopXMLNS) ->
     encode_muc_user_invite(Invite, TopXMLNS);
 encode({muc_user, _, _, _, _, _, _} = X, TopXMLNS) ->
     encode_muc_user(X, TopXMLNS);
+encode({muc_user_ul, _, _, _, _, _, _} = Query,
+       TopXMLNS) ->
+    encode_muc_user_ul(Query, TopXMLNS);
 encode({muc_owner, _, _, _} = Query, TopXMLNS) ->
     encode_muc_owner(Query, TopXMLNS);
 encode({muc_item, _, _, _, _, _, _, _} = Item,
@@ -5843,7 +5953,8 @@ encode({search_item, _, _, _, _, _} = Item, TopXMLNS) ->
 encode({search, _, _, _, _, _, _, _} = Query,
        TopXMLNS) ->
     encode_search(Query, TopXMLNS);
-encode({xevent, _, _, _, _, _} = X, TopXMLNS) ->
+encode({xevent, _, _, _, _, _, _, _, _} = X,
+       TopXMLNS) ->
     encode_xevent(X, TopXMLNS);
 encode({expire, _, _} = X, TopXMLNS) ->
     encode_expire(X, TopXMLNS);
@@ -5972,6 +6083,8 @@ get_name({hint, 'no-store'}) -> <<"no-store">>;
 get_name({hint, store}) -> <<"store">>;
 get_name({identity, _, _, _, _}) -> <<"identity">>;
 get_name({iq, _, _, _, _, _, _, _}) -> <<"iq">>;
+get_name({kvgroup, _, _, _}) -> <<"kvgroup">>;
+get_name({kvitem, _, _}) -> <<"kvitem">>;
 get_name({last, _, _}) -> <<"query">>;
 get_name({legacy_auth, _, _, _, _}) -> <<"query">>;
 get_name({legacy_auth_feature}) -> <<"auth">>;
@@ -5983,7 +6096,8 @@ get_name({mam_query, _, _, _, _, _, _, _, _}) ->
 get_name({mam_result, _, _, _, _}) -> <<"result">>;
 get_name({media, _, _, _}) -> <<"media">>;
 get_name({media_uri, _, _}) -> <<"uri">>;
-get_name({message, _, _, _, _, _, _, _, _, _, _}) ->
+get_name({message, _, _, _, _, _, _, _, _, _, _, _,
+	  _}) ->
     <<"message">>;
 get_name({mix_join, _, _}) -> <<"join">>;
 get_name({mix_leave}) -> <<"leave">>;
@@ -6002,6 +6116,8 @@ get_name({muc_subscriptions, _}) -> <<"subscriptions">>;
 get_name({muc_unique, _}) -> <<"unique">>;
 get_name({muc_unsubscribe}) -> <<"unsubscribe">>;
 get_name({muc_user, _, _, _, _, _, _}) -> <<"x">>;
+get_name({muc_user_ul, _, _, _, _, _, _}) ->
+    <<"query">>;
 get_name({nick, _}) -> <<"nick">>;
 get_name({offline, _, _, _}) -> <<"offline">>;
 get_name({offline_item, _, _}) -> <<"item">>;
@@ -6010,9 +6126,10 @@ get_name({p1_ack}) -> <<"ack">>;
 get_name({p1_push}) -> <<"push">>;
 get_name({p1_rebind}) -> <<"rebind">>;
 get_name({ping}) -> <<"ping">>;
-get_name({presence, _, _, _, _, _, _, _, _, _, _}) ->
+get_name({presence, _, _, _, _, _, _, _, _, _, _, _,
+	  _}) ->
     <<"presence">>;
-get_name({privacy_item, _, _, _, _, _, _, _, _}) ->
+get_name({privacy_item, _, _, _, _, _, _, _, _, _}) ->
     <<"item">>;
 get_name({privacy_list, _, _}) -> <<"list">>;
 get_name({privacy_query, _, _, _}) -> <<"query">>;
@@ -6082,6 +6199,7 @@ get_name({pubsub, _, _, _, _, _, _, _, _, _, _, _, _, _,
     <<"pubsub">>;
 get_name({pubsub_owner, _, _, _, _, _, _}) ->
     <<"pubsub">>;
+get_name({push_info_register, _, _}) -> <<"register">>;
 get_name({redirect, _}) -> <<"redirect">>;
 get_name({register, _, _, _, _, _, _, _, _, _, _, _, _,
 	  _, _, _, _, _, _, _, _, _, _}) ->
@@ -6159,7 +6277,7 @@ get_name({xdata, _, _, _, _, _, _}) -> <<"x">>;
 get_name({xdata_field, _, _, _, _, _, _, _, _}) ->
     <<"field">>;
 get_name({xdata_option, _, _}) -> <<"option">>;
-get_name({xevent, _, _, _, _, _}) -> <<"x">>;
+get_name({xevent, _, _, _, _, _, _, _, _}) -> <<"x">>;
 get_name({xmpp_session, _}) -> <<"session">>.
 
 get_ns({address, _, _, _, _, _}) ->
@@ -6253,6 +6371,8 @@ get_ns({identity, _, _, _, _}) ->
     <<"http://jabber.org/protocol/disco#info">>;
 get_ns({iq, _, _, _, _, _, _, _}) ->
     <<"jabber:client">>;
+get_ns({kvgroup, _, _, _}) -> <<"jabber:client">>;
+get_ns({kvitem, _, _}) -> <<"jabber:client">>;
 get_ns({last, _, _}) -> <<"jabber:iq:last">>;
 get_ns({legacy_auth, _, _, _, _}) ->
     <<"jabber:iq:auth">>;
@@ -6268,7 +6388,7 @@ get_ns({media, _, _, _}) ->
     <<"urn:xmpp:media-element">>;
 get_ns({media_uri, _, _}) ->
     <<"urn:xmpp:media-element">>;
-get_ns({message, _, _, _, _, _, _, _, _, _, _}) ->
+get_ns({message, _, _, _, _, _, _, _, _, _, _, _, _}) ->
     <<"jabber:client">>;
 get_ns({mix_join, _, _}) -> <<"urn:xmpp:mix:0">>;
 get_ns({mix_leave}) -> <<"urn:xmpp:mix:0">>;
@@ -6295,6 +6415,8 @@ get_ns({muc_unique, _}) ->
 get_ns({muc_unsubscribe}) -> <<"urn:xmpp:mucsub:0">>;
 get_ns({muc_user, _, _, _, _, _, _}) ->
     <<"http://jabber.org/protocol/muc#user">>;
+get_ns({muc_user_ul, _, _, _, _, _, _}) ->
+    <<"http://jabber.org/protocol/muc#user">>;
 get_ns({nick, _}) ->
     <<"http://jabber.org/protocol/nick">>;
 get_ns({offline, _, _, _}) ->
@@ -6306,9 +6428,10 @@ get_ns({p1_ack}) -> <<"p1:ack">>;
 get_ns({p1_push}) -> <<"p1:push">>;
 get_ns({p1_rebind}) -> <<"p1:rebind">>;
 get_ns({ping}) -> <<"urn:xmpp:ping">>;
-get_ns({presence, _, _, _, _, _, _, _, _, _, _}) ->
+get_ns({presence, _, _, _, _, _, _, _, _, _, _, _,
+	_}) ->
     <<"jabber:client">>;
-get_ns({privacy_item, _, _, _, _, _, _, _, _}) ->
+get_ns({privacy_item, _, _, _, _, _, _, _, _, _}) ->
     <<"jabber:iq:privacy">>;
 get_ns({privacy_list, _, _}) -> <<"jabber:iq:privacy">>;
 get_ns({privacy_query, _, _, _}) ->
@@ -6384,6 +6507,8 @@ get_ns({pubsub, _, _, _, _, _, _, _, _, _, _, _, _, _,
     <<"http://jabber.org/protocol/pubsub">>;
 get_ns({pubsub_owner, _, _, _, _, _, _}) ->
     <<"http://jabber.org/protocol/pubsub#owner">>;
+get_ns({push_info_register, _, _}) ->
+    <<"https://android.googleapis.com/gcm">>;
 get_ns({redirect, _}) ->
     <<"urn:ietf:params:xml:ns:xmpp-stanzas">>;
 get_ns({register, _, _, _, _, _, _, _, _, _, _, _, _, _,
@@ -6486,7 +6611,8 @@ get_ns({xdata, _, _, _, _, _, _}) ->
 get_ns({xdata_field, _, _, _, _, _, _, _, _}) ->
     <<"jabber:x:data">>;
 get_ns({xdata_option, _, _}) -> <<"jabber:x:data">>;
-get_ns({xevent, _, _, _, _, _}) -> <<"jabber:x:event">>;
+get_ns({xevent, _, _, _, _, _, _, _, _}) ->
+    <<"jabber:x:event">>;
 get_ns({xmpp_session, _}) ->
     <<"urn:ietf:params:xml:ns:xmpp-session">>.
 
@@ -6582,9 +6708,9 @@ pp(roster_item, 5) ->
     [jid, name, groups, subscription, ask];
 pp(roster_query, 2) -> [items, ver];
 pp(rosterver_feature, 0) -> [];
-pp(privacy_item, 8) ->
-    [order, action, type, value, message, iq, presence_in,
-     presence_out];
+pp(privacy_item, 9) ->
+    [order, action, type, value, message, push, iq,
+     presence_in, presence_out];
 pp(privacy_list, 2) -> [name, items];
 pp(privacy_query, 3) -> [lists, default, active];
 pp(block, 1) -> [items];
@@ -6603,10 +6729,13 @@ pp(bookmark_storage, 2) -> [conference, url];
 pp(stat_error, 2) -> [code, reason];
 pp(stat, 4) -> [name, units, value, error];
 pp(stats, 2) -> [list, node];
+pp(kvgroup, 3) -> [kvgname, kvitems, kvgvalue];
 pp(gone, 1) -> [uri];
 pp(redirect, 1) -> [uri];
 pp(stanza_error, 6) ->
     [type, code, by, reason, text, sub_els];
+pp(push_info_register, 2) ->
+    [push_info_token_key, push_info_device];
 pp(bind, 2) -> [jid, resource];
 pp(legacy_auth, 4) ->
     [username, password, digest, resource];
@@ -6704,6 +6833,9 @@ pp(muc_invite, 4) -> [reason, from, to, continue];
 pp(muc_user, 6) ->
     [decline, destroy, invites, items, status_codes,
      password];
+pp(muc_user_ul, 6) ->
+    [decline, destroy, invites, items, status_codes,
+     password];
 pp(muc_owner, 3) -> [destroy, config, items];
 pp(muc_item, 7) ->
     [actor, continue, reason, affiliation, role, jid, nick];
@@ -6748,8 +6880,9 @@ pp(mix_participant, 2) -> [jid, nick];
 pp(search_item, 5) -> [jid, first, last, nick, email];
 pp(search, 7) ->
     [instructions, first, last, nick, email, items, xdata];
-pp(xevent, 5) ->
-    [offline, delivered, displayed, composing, id];
+pp(xevent, 8) ->
+    [offline, read, received, delivered, displayed,
+     composing, id, msgid];
 pp(expire, 2) -> [seconds, stored];
 pp(nick, 1) -> [name];
 pp(address, 5) -> [type, jid, desc, node, delivered];
@@ -9873,127 +10006,220 @@ encode_expire_attr_stored(_val, _acc) ->
 
 decode_xevent(__TopXMLNS, __IgnoreEls,
 	      {xmlel, <<"x">>, _attrs, _els}) ->
-    {Id, Displayed, Delivered, Offline, Composing} =
+    {Id, Msgid, Read, Displayed, Delivered, Received,
+     Offline, Composing} =
 	decode_xevent_els(__TopXMLNS, __IgnoreEls, _els,
-			  undefined, false, false, false, false),
-    {xevent, Offline, Delivered, Displayed, Composing, Id}.
+			  undefined, undefined, false, false, false, false,
+			  false, false),
+    {xevent, Offline, Read, Received, Delivered, Displayed,
+     Composing, Id, Msgid}.
 
 decode_xevent_els(__TopXMLNS, __IgnoreEls, [], Id,
-		  Displayed, Delivered, Offline, Composing) ->
-    {Id, Displayed, Delivered, Offline, Composing};
+		  Msgid, Read, Displayed, Delivered, Received, Offline,
+		  Composing) ->
+    {Id, Msgid, Read, Displayed, Delivered, Received,
+     Offline, Composing};
 decode_xevent_els(__TopXMLNS, __IgnoreEls,
 		  [{xmlel, <<"offline">>, _attrs, _} = _el | _els], Id,
-		  Displayed, Delivered, Offline, Composing) ->
+		  Msgid, Read, Displayed, Delivered, Received, Offline,
+		  Composing) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"">> when __TopXMLNS == <<"jabber:x:event">> ->
 	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els, Id,
-			    Displayed, Delivered,
+			    Msgid, Read, Displayed, Delivered, Received,
 			    decode_xevent_offline(__TopXMLNS, __IgnoreEls, _el),
 			    Composing);
       <<"jabber:x:event">> ->
 	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els, Id,
-			    Displayed, Delivered,
+			    Msgid, Read, Displayed, Delivered, Received,
 			    decode_xevent_offline(<<"jabber:x:event">>,
 						  __IgnoreEls, _el),
 			    Composing);
       _ ->
 	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els, Id,
-			    Displayed, Delivered, Offline, Composing)
+			    Msgid, Read, Displayed, Delivered, Received,
+			    Offline, Composing)
+    end;
+decode_xevent_els(__TopXMLNS, __IgnoreEls,
+		  [{xmlel, <<"received">>, _attrs, _} = _el | _els], Id,
+		  Msgid, Read, Displayed, Delivered, Received, Offline,
+		  Composing) ->
+    case get_attr(<<"xmlns">>, _attrs) of
+      <<"">> when __TopXMLNS == <<"jabber:x:event">> ->
+	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els, Id,
+			    Msgid, Read, Displayed, Delivered,
+			    decode_xevent_received(__TopXMLNS, __IgnoreEls,
+						   _el),
+			    Offline, Composing);
+      <<"jabber:x:event">> ->
+	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els, Id,
+			    Msgid, Read, Displayed, Delivered,
+			    decode_xevent_received(<<"jabber:x:event">>,
+						   __IgnoreEls, _el),
+			    Offline, Composing);
+      _ ->
+	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els, Id,
+			    Msgid, Read, Displayed, Delivered, Received,
+			    Offline, Composing)
     end;
 decode_xevent_els(__TopXMLNS, __IgnoreEls,
 		  [{xmlel, <<"delivered">>, _attrs, _} = _el | _els], Id,
-		  Displayed, Delivered, Offline, Composing) ->
+		  Msgid, Read, Displayed, Delivered, Received, Offline,
+		  Composing) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"">> when __TopXMLNS == <<"jabber:x:event">> ->
 	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els, Id,
-			    Displayed,
+			    Msgid, Read, Displayed,
 			    decode_xevent_delivered(__TopXMLNS, __IgnoreEls,
 						    _el),
-			    Offline, Composing);
+			    Received, Offline, Composing);
       <<"jabber:x:event">> ->
 	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els, Id,
-			    Displayed,
+			    Msgid, Read, Displayed,
 			    decode_xevent_delivered(<<"jabber:x:event">>,
 						    __IgnoreEls, _el),
-			    Offline, Composing);
+			    Received, Offline, Composing);
       _ ->
 	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els, Id,
-			    Displayed, Delivered, Offline, Composing)
+			    Msgid, Read, Displayed, Delivered, Received,
+			    Offline, Composing)
     end;
 decode_xevent_els(__TopXMLNS, __IgnoreEls,
 		  [{xmlel, <<"displayed">>, _attrs, _} = _el | _els], Id,
-		  Displayed, Delivered, Offline, Composing) ->
+		  Msgid, Read, Displayed, Delivered, Received, Offline,
+		  Composing) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"">> when __TopXMLNS == <<"jabber:x:event">> ->
 	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els, Id,
+			    Msgid, Read,
 			    decode_xevent_displayed(__TopXMLNS, __IgnoreEls,
 						    _el),
-			    Delivered, Offline, Composing);
+			    Delivered, Received, Offline, Composing);
       <<"jabber:x:event">> ->
 	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els, Id,
+			    Msgid, Read,
 			    decode_xevent_displayed(<<"jabber:x:event">>,
 						    __IgnoreEls, _el),
-			    Delivered, Offline, Composing);
+			    Delivered, Received, Offline, Composing);
       _ ->
 	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els, Id,
-			    Displayed, Delivered, Offline, Composing)
+			    Msgid, Read, Displayed, Delivered, Received,
+			    Offline, Composing)
     end;
 decode_xevent_els(__TopXMLNS, __IgnoreEls,
 		  [{xmlel, <<"composing">>, _attrs, _} = _el | _els], Id,
-		  Displayed, Delivered, Offline, Composing) ->
+		  Msgid, Read, Displayed, Delivered, Received, Offline,
+		  Composing) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"">> when __TopXMLNS == <<"jabber:x:event">> ->
 	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els, Id,
-			    Displayed, Delivered, Offline,
+			    Msgid, Read, Displayed, Delivered, Received,
+			    Offline,
 			    decode_xevent_composing(__TopXMLNS, __IgnoreEls,
 						    _el));
       <<"jabber:x:event">> ->
 	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els, Id,
-			    Displayed, Delivered, Offline,
+			    Msgid, Read, Displayed, Delivered, Received,
+			    Offline,
 			    decode_xevent_composing(<<"jabber:x:event">>,
 						    __IgnoreEls, _el));
       _ ->
 	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els, Id,
-			    Displayed, Delivered, Offline, Composing)
+			    Msgid, Read, Displayed, Delivered, Received,
+			    Offline, Composing)
     end;
 decode_xevent_els(__TopXMLNS, __IgnoreEls,
-		  [{xmlel, <<"id">>, _attrs, _} = _el | _els], Id,
-		  Displayed, Delivered, Offline, Composing) ->
+		  [{xmlel, <<"read">>, _attrs, _} = _el | _els], Id,
+		  Msgid, Read, Displayed, Delivered, Received, Offline,
+		  Composing) ->
+    case get_attr(<<"xmlns">>, _attrs) of
+      <<"">> when __TopXMLNS == <<"jabber:x:event">> ->
+	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els, Id,
+			    Msgid,
+			    decode_xevent_read(__TopXMLNS, __IgnoreEls, _el),
+			    Displayed, Delivered, Received, Offline, Composing);
+      <<"jabber:x:event">> ->
+	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els, Id,
+			    Msgid,
+			    decode_xevent_read(<<"jabber:x:event">>,
+					       __IgnoreEls, _el),
+			    Displayed, Delivered, Received, Offline, Composing);
+      _ ->
+	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els, Id,
+			    Msgid, Read, Displayed, Delivered, Received,
+			    Offline, Composing)
+    end;
+decode_xevent_els(__TopXMLNS, __IgnoreEls,
+		  [{xmlel, <<"msgid">>, _attrs, _} = _el | _els], Id,
+		  Msgid, Read, Displayed, Delivered, Received, Offline,
+		  Composing) ->
+    case get_attr(<<"xmlns">>, _attrs) of
+      <<"">> when __TopXMLNS == <<"jabber:x:event">> ->
+	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els, Id,
+			    decode_xevent_msgid(__TopXMLNS, __IgnoreEls, _el),
+			    Read, Displayed, Delivered, Received, Offline,
+			    Composing);
+      <<"jabber:x:event">> ->
+	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els, Id,
+			    decode_xevent_msgid(<<"jabber:x:event">>,
+						__IgnoreEls, _el),
+			    Read, Displayed, Delivered, Received, Offline,
+			    Composing);
+      _ ->
+	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els, Id,
+			    Msgid, Read, Displayed, Delivered, Received,
+			    Offline, Composing)
+    end;
+decode_xevent_els(__TopXMLNS, __IgnoreEls,
+		  [{xmlel, <<"id">>, _attrs, _} = _el | _els], Id, Msgid,
+		  Read, Displayed, Delivered, Received, Offline,
+		  Composing) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"">> when __TopXMLNS == <<"jabber:x:event">> ->
 	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els,
 			    decode_xevent_id(__TopXMLNS, __IgnoreEls, _el),
-			    Displayed, Delivered, Offline, Composing);
+			    Msgid, Read, Displayed, Delivered, Received,
+			    Offline, Composing);
       <<"jabber:x:event">> ->
 	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els,
 			    decode_xevent_id(<<"jabber:x:event">>, __IgnoreEls,
 					     _el),
-			    Displayed, Delivered, Offline, Composing);
+			    Msgid, Read, Displayed, Delivered, Received,
+			    Offline, Composing);
       _ ->
 	  decode_xevent_els(__TopXMLNS, __IgnoreEls, _els, Id,
-			    Displayed, Delivered, Offline, Composing)
+			    Msgid, Read, Displayed, Delivered, Received,
+			    Offline, Composing)
     end;
 decode_xevent_els(__TopXMLNS, __IgnoreEls, [_ | _els],
-		  Id, Displayed, Delivered, Offline, Composing) ->
+		  Id, Msgid, Read, Displayed, Delivered, Received,
+		  Offline, Composing) ->
     decode_xevent_els(__TopXMLNS, __IgnoreEls, _els, Id,
-		      Displayed, Delivered, Offline, Composing).
+		      Msgid, Read, Displayed, Delivered, Received, Offline,
+		      Composing).
 
-encode_xevent({xevent, Offline, Delivered, Displayed,
-	       Composing, Id},
+encode_xevent({xevent, Offline, Read, Received,
+	       Delivered, Displayed, Composing, Id, Msgid},
 	      __TopXMLNS) ->
     __NewTopXMLNS = choose_top_xmlns(<<"jabber:x:event">>,
 				     [], __TopXMLNS),
     _els = lists:reverse('encode_xevent_$id'(Id,
 					     __NewTopXMLNS,
-					     'encode_xevent_$displayed'(Displayed,
-									__NewTopXMLNS,
-									'encode_xevent_$delivered'(Delivered,
-												   __NewTopXMLNS,
-												   'encode_xevent_$offline'(Offline,
-															    __NewTopXMLNS,
-															    'encode_xevent_$composing'(Composing,
-																		       __NewTopXMLNS,
-																		       [])))))),
+					     'encode_xevent_$msgid'(Msgid,
+								    __NewTopXMLNS,
+								    'encode_xevent_$read'(Read,
+											  __NewTopXMLNS,
+											  'encode_xevent_$displayed'(Displayed,
+														     __NewTopXMLNS,
+														     'encode_xevent_$delivered'(Delivered,
+																		__NewTopXMLNS,
+																		'encode_xevent_$received'(Received,
+																					  __NewTopXMLNS,
+																					  'encode_xevent_$offline'(Offline,
+																								   __NewTopXMLNS,
+																								   'encode_xevent_$composing'(Composing,
+																											      __NewTopXMLNS,
+																											      []))))))))),
     _attrs = enc_xmlns_attrs(__NewTopXMLNS, __TopXMLNS),
     {xmlel, <<"x">>, _attrs, _els}.
 
@@ -10001,6 +10227,15 @@ encode_xevent({xevent, Offline, Delivered, Displayed,
     _acc;
 'encode_xevent_$id'(Id, __TopXMLNS, _acc) ->
     [encode_xevent_id(Id, __TopXMLNS) | _acc].
+
+'encode_xevent_$msgid'(undefined, __TopXMLNS, _acc) ->
+    _acc;
+'encode_xevent_$msgid'(Msgid, __TopXMLNS, _acc) ->
+    [encode_xevent_msgid(Msgid, __TopXMLNS) | _acc].
+
+'encode_xevent_$read'(false, __TopXMLNS, _acc) -> _acc;
+'encode_xevent_$read'(Read, __TopXMLNS, _acc) ->
+    [encode_xevent_read(Read, __TopXMLNS) | _acc].
 
 'encode_xevent_$displayed'(false, __TopXMLNS, _acc) ->
     _acc;
@@ -10014,6 +10249,11 @@ encode_xevent({xevent, Offline, Delivered, Displayed,
 			   _acc) ->
     [encode_xevent_delivered(Delivered, __TopXMLNS) | _acc].
 
+'encode_xevent_$received'(false, __TopXMLNS, _acc) ->
+    _acc;
+'encode_xevent_$received'(Received, __TopXMLNS, _acc) ->
+    [encode_xevent_received(Received, __TopXMLNS) | _acc].
+
 'encode_xevent_$offline'(false, __TopXMLNS, _acc) ->
     _acc;
 'encode_xevent_$offline'(Offline, __TopXMLNS, _acc) ->
@@ -10024,6 +10264,38 @@ encode_xevent({xevent, Offline, Delivered, Displayed,
 'encode_xevent_$composing'(Composing, __TopXMLNS,
 			   _acc) ->
     [encode_xevent_composing(Composing, __TopXMLNS) | _acc].
+
+decode_xevent_msgid(__TopXMLNS, __IgnoreEls,
+		    {xmlel, <<"msgid">>, _attrs, _els}) ->
+    Cdata = decode_xevent_msgid_els(__TopXMLNS, __IgnoreEls,
+				    _els, <<>>),
+    Cdata.
+
+decode_xevent_msgid_els(__TopXMLNS, __IgnoreEls, [],
+			Cdata) ->
+    decode_xevent_msgid_cdata(__TopXMLNS, Cdata);
+decode_xevent_msgid_els(__TopXMLNS, __IgnoreEls,
+			[{xmlcdata, _data} | _els], Cdata) ->
+    decode_xevent_msgid_els(__TopXMLNS, __IgnoreEls, _els,
+			    <<Cdata/binary, _data/binary>>);
+decode_xevent_msgid_els(__TopXMLNS, __IgnoreEls,
+			[_ | _els], Cdata) ->
+    decode_xevent_msgid_els(__TopXMLNS, __IgnoreEls, _els,
+			    Cdata).
+
+encode_xevent_msgid(Cdata, __TopXMLNS) ->
+    __NewTopXMLNS = choose_top_xmlns(<<"jabber:x:event">>,
+				     [], __TopXMLNS),
+    _els = encode_xevent_msgid_cdata(Cdata, []),
+    _attrs = enc_xmlns_attrs(__NewTopXMLNS, __TopXMLNS),
+    {xmlel, <<"msgid">>, _attrs, _els}.
+
+decode_xevent_msgid_cdata(__TopXMLNS, <<>>) -> <<>>;
+decode_xevent_msgid_cdata(__TopXMLNS, _val) -> _val.
+
+encode_xevent_msgid_cdata(<<>>, _acc) -> _acc;
+encode_xevent_msgid_cdata(_val, _acc) ->
+    [{xmlcdata, _val} | _acc].
 
 decode_xevent_id(__TopXMLNS, __IgnoreEls,
 		 {xmlel, <<"id">>, _attrs, _els}) ->
@@ -10057,6 +10329,17 @@ encode_xevent_id_cdata(<<>>, _acc) -> _acc;
 encode_xevent_id_cdata(_val, _acc) ->
     [{xmlcdata, _val} | _acc].
 
+decode_xevent_read(__TopXMLNS, __IgnoreEls,
+		   {xmlel, <<"read">>, _attrs, _els}) ->
+    true.
+
+encode_xevent_read(true, __TopXMLNS) ->
+    __NewTopXMLNS = choose_top_xmlns(<<"jabber:x:event">>,
+				     [], __TopXMLNS),
+    _els = [],
+    _attrs = enc_xmlns_attrs(__NewTopXMLNS, __TopXMLNS),
+    {xmlel, <<"read">>, _attrs, _els}.
+
 decode_xevent_composing(__TopXMLNS, __IgnoreEls,
 			{xmlel, <<"composing">>, _attrs, _els}) ->
     true.
@@ -10089,6 +10372,17 @@ encode_xevent_delivered(true, __TopXMLNS) ->
     _els = [],
     _attrs = enc_xmlns_attrs(__NewTopXMLNS, __TopXMLNS),
     {xmlel, <<"delivered">>, _attrs, _els}.
+
+decode_xevent_received(__TopXMLNS, __IgnoreEls,
+		       {xmlel, <<"received">>, _attrs, _els}) ->
+    true.
+
+encode_xevent_received(true, __TopXMLNS) ->
+    __NewTopXMLNS = choose_top_xmlns(<<"jabber:x:event">>,
+				     [], __TopXMLNS),
+    _els = [],
+    _attrs = enc_xmlns_attrs(__NewTopXMLNS, __TopXMLNS),
+    {xmlel, <<"received">>, _attrs, _els}.
 
 decode_xevent_offline(__TopXMLNS, __IgnoreEls,
 		      {xmlel, <<"offline">>, _attrs, _els}) ->
@@ -14851,6 +15145,271 @@ decode_muc_password_cdata(__TopXMLNS, _val) -> _val.
 encode_muc_password_cdata(<<>>, _acc) -> _acc;
 encode_muc_password_cdata(_val, _acc) ->
     [{xmlcdata, _val} | _acc].
+
+decode_muc_user_ul(__TopXMLNS, __IgnoreEls,
+		   {xmlel, <<"query">>, _attrs, _els}) ->
+    {Status_codes, Items, Invites, Password, Decline,
+     Destroy} =
+	decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, _els,
+			       [], [], [], undefined, undefined, undefined),
+    {muc_user_ul, Decline, Destroy, Invites, Items,
+     Status_codes, Password}.
+
+decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, [],
+		       Status_codes, Items, Invites, Password, Decline,
+		       Destroy) ->
+    {lists:reverse(Status_codes), lists:reverse(Items),
+     lists:reverse(Invites), Password, Decline, Destroy};
+decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls,
+		       [{xmlel, <<"decline">>, _attrs, _} = _el | _els],
+		       Status_codes, Items, Invites, Password, Decline,
+		       Destroy) ->
+    case get_attr(<<"xmlns">>, _attrs) of
+      <<"">>
+	  when __TopXMLNS ==
+		 <<"http://jabber.org/protocol/muc#user">> ->
+	  decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, _els,
+				 Status_codes, Items, Invites, Password,
+				 decode_muc_user_decline(__TopXMLNS,
+							 __IgnoreEls, _el),
+				 Destroy);
+      <<"http://jabber.org/protocol/muc#user">> ->
+	  decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, _els,
+				 Status_codes, Items, Invites, Password,
+				 decode_muc_user_decline(<<"http://jabber.org/protocol/muc#user">>,
+							 __IgnoreEls, _el),
+				 Destroy);
+      _ ->
+	  decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, _els,
+				 Status_codes, Items, Invites, Password,
+				 Decline, Destroy)
+    end;
+decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls,
+		       [{xmlel, <<"destroy">>, _attrs, _} = _el | _els],
+		       Status_codes, Items, Invites, Password, Decline,
+		       Destroy) ->
+    case get_attr(<<"xmlns">>, _attrs) of
+      <<"">>
+	  when __TopXMLNS ==
+		 <<"http://jabber.org/protocol/muc#user">> ->
+	  decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, _els,
+				 Status_codes, Items, Invites, Password,
+				 Decline,
+				 decode_muc_destroy(__TopXMLNS, __IgnoreEls,
+						    _el));
+      <<"http://jabber.org/protocol/muc#user">> ->
+	  decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, _els,
+				 Status_codes, Items, Invites, Password,
+				 Decline,
+				 decode_muc_destroy(<<"http://jabber.org/protocol/muc#user">>,
+						    __IgnoreEls, _el));
+      <<"http://jabber.org/protocol/muc#owner">> ->
+	  decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, _els,
+				 Status_codes, Items, Invites, Password,
+				 Decline,
+				 decode_muc_destroy(<<"http://jabber.org/protocol/muc#owner">>,
+						    __IgnoreEls, _el));
+      _ ->
+	  decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, _els,
+				 Status_codes, Items, Invites, Password,
+				 Decline, Destroy)
+    end;
+decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls,
+		       [{xmlel, <<"password">>, _attrs, _} = _el | _els],
+		       Status_codes, Items, Invites, Password, Decline,
+		       Destroy) ->
+    case get_attr(<<"xmlns">>, _attrs) of
+      <<"">>
+	  when __TopXMLNS ==
+		 <<"http://jabber.org/protocol/muc#user">> ->
+	  decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, _els,
+				 Status_codes, Items, Invites,
+				 decode_muc_password(__TopXMLNS, __IgnoreEls,
+						     _el),
+				 Decline, Destroy);
+      <<"http://jabber.org/protocol/muc#owner">> ->
+	  decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, _els,
+				 Status_codes, Items, Invites,
+				 decode_muc_password(<<"http://jabber.org/protocol/muc#owner">>,
+						     __IgnoreEls, _el),
+				 Decline, Destroy);
+      <<"http://jabber.org/protocol/muc#user">> ->
+	  decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, _els,
+				 Status_codes, Items, Invites,
+				 decode_muc_password(<<"http://jabber.org/protocol/muc#user">>,
+						     __IgnoreEls, _el),
+				 Decline, Destroy);
+      <<"http://jabber.org/protocol/muc">> ->
+	  decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, _els,
+				 Status_codes, Items, Invites,
+				 decode_muc_password(<<"http://jabber.org/protocol/muc">>,
+						     __IgnoreEls, _el),
+				 Decline, Destroy);
+      _ ->
+	  decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, _els,
+				 Status_codes, Items, Invites, Password,
+				 Decline, Destroy)
+    end;
+decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls,
+		       [{xmlel, <<"invite">>, _attrs, _} = _el | _els],
+		       Status_codes, Items, Invites, Password, Decline,
+		       Destroy) ->
+    case get_attr(<<"xmlns">>, _attrs) of
+      <<"">>
+	  when __TopXMLNS ==
+		 <<"http://jabber.org/protocol/muc#user">> ->
+	  decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, _els,
+				 Status_codes, Items,
+				 [decode_muc_user_invite(__TopXMLNS,
+							 __IgnoreEls, _el)
+				  | Invites],
+				 Password, Decline, Destroy);
+      <<"http://jabber.org/protocol/muc#user">> ->
+	  decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, _els,
+				 Status_codes, Items,
+				 [decode_muc_user_invite(<<"http://jabber.org/protocol/muc#user">>,
+							 __IgnoreEls, _el)
+				  | Invites],
+				 Password, Decline, Destroy);
+      _ ->
+	  decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, _els,
+				 Status_codes, Items, Invites, Password,
+				 Decline, Destroy)
+    end;
+decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls,
+		       [{xmlel, <<"item">>, _attrs, _} = _el | _els],
+		       Status_codes, Items, Invites, Password, Decline,
+		       Destroy) ->
+    case get_attr(<<"xmlns">>, _attrs) of
+      <<"">>
+	  when __TopXMLNS ==
+		 <<"http://jabber.org/protocol/muc#user">> ->
+	  decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, _els,
+				 Status_codes,
+				 [decode_muc_user_item(__TopXMLNS, __IgnoreEls,
+						       _el)
+				  | Items],
+				 Invites, Password, Decline, Destroy);
+      <<"http://jabber.org/protocol/muc#user">> ->
+	  decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, _els,
+				 Status_codes,
+				 [decode_muc_user_item(<<"http://jabber.org/protocol/muc#user">>,
+						       __IgnoreEls, _el)
+				  | Items],
+				 Invites, Password, Decline, Destroy);
+      _ ->
+	  decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, _els,
+				 Status_codes, Items, Invites, Password,
+				 Decline, Destroy)
+    end;
+decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls,
+		       [{xmlel, <<"status">>, _attrs, _} = _el | _els],
+		       Status_codes, Items, Invites, Password, Decline,
+		       Destroy) ->
+    case get_attr(<<"xmlns">>, _attrs) of
+      <<"">>
+	  when __TopXMLNS ==
+		 <<"http://jabber.org/protocol/muc#user">> ->
+	  decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, _els,
+				 case decode_muc_user_status(__TopXMLNS,
+							     __IgnoreEls, _el)
+				     of
+				   undefined -> Status_codes;
+				   _new_el -> [_new_el | Status_codes]
+				 end,
+				 Items, Invites, Password, Decline, Destroy);
+      <<"http://jabber.org/protocol/muc#user">> ->
+	  decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, _els,
+				 case
+				   decode_muc_user_status(<<"http://jabber.org/protocol/muc#user">>,
+							  __IgnoreEls, _el)
+				     of
+				   undefined -> Status_codes;
+				   _new_el -> [_new_el | Status_codes]
+				 end,
+				 Items, Invites, Password, Decline, Destroy);
+      _ ->
+	  decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, _els,
+				 Status_codes, Items, Invites, Password,
+				 Decline, Destroy)
+    end;
+decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls,
+		       [_ | _els], Status_codes, Items, Invites, Password,
+		       Decline, Destroy) ->
+    decode_muc_user_ul_els(__TopXMLNS, __IgnoreEls, _els,
+			   Status_codes, Items, Invites, Password, Decline,
+			   Destroy).
+
+encode_muc_user_ul({muc_user_ul, Decline, Destroy,
+		    Invites, Items, Status_codes, Password},
+		   __TopXMLNS) ->
+    __NewTopXMLNS =
+	choose_top_xmlns(<<"http://jabber.org/protocol/muc#user">>,
+			 [], __TopXMLNS),
+    _els =
+	lists:reverse('encode_muc_user_ul_$status_codes'(Status_codes,
+							 __NewTopXMLNS,
+							 'encode_muc_user_ul_$items'(Items,
+										     __NewTopXMLNS,
+										     'encode_muc_user_ul_$invites'(Invites,
+														   __NewTopXMLNS,
+														   'encode_muc_user_ul_$password'(Password,
+																		  __NewTopXMLNS,
+																		  'encode_muc_user_ul_$decline'(Decline,
+																						__NewTopXMLNS,
+																						'encode_muc_user_ul_$destroy'(Destroy,
+																									      __NewTopXMLNS,
+																									      []))))))),
+    _attrs = enc_xmlns_attrs(__NewTopXMLNS, __TopXMLNS),
+    {xmlel, <<"query">>, _attrs, _els}.
+
+'encode_muc_user_ul_$status_codes'([], __TopXMLNS,
+				   _acc) ->
+    _acc;
+'encode_muc_user_ul_$status_codes'([Status_codes
+				    | _els],
+				   __TopXMLNS, _acc) ->
+    'encode_muc_user_ul_$status_codes'(_els, __TopXMLNS,
+				       [encode_muc_user_status(Status_codes,
+							       __TopXMLNS)
+					| _acc]).
+
+'encode_muc_user_ul_$items'([], __TopXMLNS, _acc) ->
+    _acc;
+'encode_muc_user_ul_$items'([Items | _els], __TopXMLNS,
+			    _acc) ->
+    'encode_muc_user_ul_$items'(_els, __TopXMLNS,
+				[encode_muc_user_item(Items, __TopXMLNS)
+				 | _acc]).
+
+'encode_muc_user_ul_$invites'([], __TopXMLNS, _acc) ->
+    _acc;
+'encode_muc_user_ul_$invites'([Invites | _els],
+			      __TopXMLNS, _acc) ->
+    'encode_muc_user_ul_$invites'(_els, __TopXMLNS,
+				  [encode_muc_user_invite(Invites, __TopXMLNS)
+				   | _acc]).
+
+'encode_muc_user_ul_$password'(undefined, __TopXMLNS,
+			       _acc) ->
+    _acc;
+'encode_muc_user_ul_$password'(Password, __TopXMLNS,
+			       _acc) ->
+    [encode_muc_password(Password, __TopXMLNS) | _acc].
+
+'encode_muc_user_ul_$decline'(undefined, __TopXMLNS,
+			      _acc) ->
+    _acc;
+'encode_muc_user_ul_$decline'(Decline, __TopXMLNS,
+			      _acc) ->
+    [encode_muc_user_decline(Decline, __TopXMLNS) | _acc].
+
+'encode_muc_user_ul_$destroy'(undefined, __TopXMLNS,
+			      _acc) ->
+    _acc;
+'encode_muc_user_ul_$destroy'(Destroy, __TopXMLNS,
+			      _acc) ->
+    [encode_muc_destroy(Destroy, __TopXMLNS) | _acc].
 
 decode_muc_user(__TopXMLNS, __IgnoreEls,
 		{xmlel, <<"x">>, _attrs, _els}) ->
@@ -30688,6 +31247,182 @@ encode_bind_jid_cdata(undefined, _acc) -> _acc;
 encode_bind_jid_cdata(_val, _acc) ->
     [{xmlcdata, enc_jid(_val)} | _acc].
 
+decode_push_info_register(__TopXMLNS, __IgnoreEls,
+			  {xmlel, <<"register">>, _attrs, _els}) ->
+    {Push_info_device, Push_info_token_key} =
+	decode_push_info_register_els(__TopXMLNS, __IgnoreEls,
+				      _els, undefined, <<>>),
+    {push_info_register, Push_info_token_key,
+     Push_info_device}.
+
+decode_push_info_register_els(__TopXMLNS, __IgnoreEls,
+			      [], Push_info_device, Push_info_token_key) ->
+    {Push_info_device, Push_info_token_key};
+decode_push_info_register_els(__TopXMLNS, __IgnoreEls,
+			      [{xmlel, <<"device">>, _attrs, _} = _el | _els],
+			      Push_info_device, Push_info_token_key) ->
+    case get_attr(<<"xmlns">>, _attrs) of
+      <<"">>
+	  when __TopXMLNS ==
+		 <<"https://android.googleapis.com/gcm">> ->
+	  decode_push_info_register_els(__TopXMLNS, __IgnoreEls,
+					_els,
+					decode_push_info_device(__TopXMLNS,
+								__IgnoreEls,
+								_el),
+					Push_info_token_key);
+      <<"https://android.googleapis.com/gcm">> ->
+	  decode_push_info_register_els(__TopXMLNS, __IgnoreEls,
+					_els,
+					decode_push_info_device(<<"https://android.googleapis.com/gcm">>,
+								__IgnoreEls,
+								_el),
+					Push_info_token_key);
+      _ ->
+	  decode_push_info_register_els(__TopXMLNS, __IgnoreEls,
+					_els, Push_info_device,
+					Push_info_token_key)
+    end;
+decode_push_info_register_els(__TopXMLNS, __IgnoreEls,
+			      [{xmlel, <<"key">>, _attrs, _} = _el | _els],
+			      Push_info_device, Push_info_token_key) ->
+    case get_attr(<<"xmlns">>, _attrs) of
+      <<"">>
+	  when __TopXMLNS ==
+		 <<"https://android.googleapis.com/gcm">> ->
+	  decode_push_info_register_els(__TopXMLNS, __IgnoreEls,
+					_els, Push_info_device,
+					decode_push_info_token_key(__TopXMLNS,
+								   __IgnoreEls,
+								   _el));
+      <<"https://android.googleapis.com/gcm">> ->
+	  decode_push_info_register_els(__TopXMLNS, __IgnoreEls,
+					_els, Push_info_device,
+					decode_push_info_token_key(<<"https://android.googleapis.com/gcm">>,
+								   __IgnoreEls,
+								   _el));
+      _ ->
+	  decode_push_info_register_els(__TopXMLNS, __IgnoreEls,
+					_els, Push_info_device,
+					Push_info_token_key)
+    end;
+decode_push_info_register_els(__TopXMLNS, __IgnoreEls,
+			      [_ | _els], Push_info_device,
+			      Push_info_token_key) ->
+    decode_push_info_register_els(__TopXMLNS, __IgnoreEls,
+				  _els, Push_info_device, Push_info_token_key).
+
+encode_push_info_register({push_info_register,
+			   Push_info_token_key, Push_info_device},
+			  __TopXMLNS) ->
+    __NewTopXMLNS =
+	choose_top_xmlns(<<"https://android.googleapis.com/gcm">>,
+			 [], __TopXMLNS),
+    _els =
+	lists:reverse('encode_push_info_register_$push_info_device'(Push_info_device,
+								    __NewTopXMLNS,
+								    'encode_push_info_register_$push_info_token_key'(Push_info_token_key,
+														     __NewTopXMLNS,
+														     []))),
+    _attrs = enc_xmlns_attrs(__NewTopXMLNS, __TopXMLNS),
+    {xmlel, <<"register">>, _attrs, _els}.
+
+'encode_push_info_register_$push_info_device'(undefined,
+					      __TopXMLNS, _acc) ->
+    _acc;
+'encode_push_info_register_$push_info_device'(Push_info_device,
+					      __TopXMLNS, _acc) ->
+    [encode_push_info_device(Push_info_device, __TopXMLNS)
+     | _acc].
+
+'encode_push_info_register_$push_info_token_key'(<<>>,
+						 __TopXMLNS, _acc) ->
+    _acc;
+'encode_push_info_register_$push_info_token_key'(Push_info_token_key,
+						 __TopXMLNS, _acc) ->
+    [encode_push_info_token_key(Push_info_token_key,
+				__TopXMLNS)
+     | _acc].
+
+decode_push_info_token_key(__TopXMLNS, __IgnoreEls,
+			   {xmlel, <<"key">>, _attrs, _els}) ->
+    Cdata = decode_push_info_token_key_els(__TopXMLNS,
+					   __IgnoreEls, _els, <<>>),
+    Cdata.
+
+decode_push_info_token_key_els(__TopXMLNS, __IgnoreEls,
+			       [], Cdata) ->
+    decode_push_info_token_key_cdata(__TopXMLNS, Cdata);
+decode_push_info_token_key_els(__TopXMLNS, __IgnoreEls,
+			       [{xmlcdata, _data} | _els], Cdata) ->
+    decode_push_info_token_key_els(__TopXMLNS, __IgnoreEls,
+				   _els, <<Cdata/binary, _data/binary>>);
+decode_push_info_token_key_els(__TopXMLNS, __IgnoreEls,
+			       [_ | _els], Cdata) ->
+    decode_push_info_token_key_els(__TopXMLNS, __IgnoreEls,
+				   _els, Cdata).
+
+encode_push_info_token_key(Cdata, __TopXMLNS) ->
+    __NewTopXMLNS =
+	choose_top_xmlns(<<"https://android.googleapis.com/gcm">>,
+			 [], __TopXMLNS),
+    _els = encode_push_info_token_key_cdata(Cdata, []),
+    _attrs = enc_xmlns_attrs(__NewTopXMLNS, __TopXMLNS),
+    {xmlel, <<"key">>, _attrs, _els}.
+
+decode_push_info_token_key_cdata(__TopXMLNS, <<>>) ->
+    <<>>;
+decode_push_info_token_key_cdata(__TopXMLNS, _val) ->
+    case catch resourceprep(_val) of
+      {'EXIT', _} ->
+	  erlang:error({xmpp_codec,
+			{bad_cdata_value, <<>>, <<"key">>, __TopXMLNS}});
+      _res -> _res
+    end.
+
+encode_push_info_token_key_cdata(<<>>, _acc) -> _acc;
+encode_push_info_token_key_cdata(_val, _acc) ->
+    [{xmlcdata, resourceprep(_val)} | _acc].
+
+decode_push_info_device(__TopXMLNS, __IgnoreEls,
+			{xmlel, <<"device">>, _attrs, _els}) ->
+    Cdata = decode_push_info_device_els(__TopXMLNS,
+					__IgnoreEls, _els, <<>>),
+    Cdata.
+
+decode_push_info_device_els(__TopXMLNS, __IgnoreEls, [],
+			    Cdata) ->
+    decode_push_info_device_cdata(__TopXMLNS, Cdata);
+decode_push_info_device_els(__TopXMLNS, __IgnoreEls,
+			    [{xmlcdata, _data} | _els], Cdata) ->
+    decode_push_info_device_els(__TopXMLNS, __IgnoreEls,
+				_els, <<Cdata/binary, _data/binary>>);
+decode_push_info_device_els(__TopXMLNS, __IgnoreEls,
+			    [_ | _els], Cdata) ->
+    decode_push_info_device_els(__TopXMLNS, __IgnoreEls,
+				_els, Cdata).
+
+encode_push_info_device(Cdata, __TopXMLNS) ->
+    __NewTopXMLNS =
+	choose_top_xmlns(<<"https://android.googleapis.com/gcm">>,
+			 [], __TopXMLNS),
+    _els = encode_push_info_device_cdata(Cdata, []),
+    _attrs = enc_xmlns_attrs(__NewTopXMLNS, __TopXMLNS),
+    {xmlel, <<"device">>, _attrs, _els}.
+
+decode_push_info_device_cdata(__TopXMLNS, <<>>) -> <<>>;
+decode_push_info_device_cdata(__TopXMLNS, _val) ->
+    case catch resourceprep(_val) of
+      {'EXIT', _} ->
+	  erlang:error({xmpp_codec,
+			{bad_cdata_value, <<>>, <<"device">>, __TopXMLNS}});
+      _res -> _res
+    end.
+
+encode_push_info_device_cdata(<<>>, _acc) -> _acc;
+encode_push_info_device_cdata(_val, _acc) ->
+    [{xmlcdata, resourceprep(_val)} | _acc].
+
 decode_error(__TopXMLNS, __IgnoreEls,
 	     {xmlel, <<"error">>, _attrs, _els}) ->
     {Text, Reason, __Els} = decode_error_els(__TopXMLNS,
@@ -31637,11 +32372,12 @@ decode_presence(__TopXMLNS, __IgnoreEls,
     {Status, Show, Priority, __Els} =
 	decode_presence_els(__TopXMLNS, __IgnoreEls, _els, [],
 			    undefined, undefined, []),
-    {Id, Type, From, To, Lang} =
+    {Id, Type, Title, Action, From, To, Lang} =
 	decode_presence_attrs(__TopXMLNS, _attrs, undefined,
-			      undefined, undefined, undefined, undefined),
+			      undefined, undefined, undefined, undefined,
+			      undefined, undefined),
     {presence, Id, Type, Lang, From, To, Show, Status,
-     Priority, __Els, #{}}.
+     Action, Title, Priority, __Els, #{}}.
 
 decode_presence_els(__TopXMLNS, __IgnoreEls, [], Status,
 		    Show, Priority, __Els) ->
@@ -31775,44 +32511,56 @@ decode_presence_els(__TopXMLNS, __IgnoreEls, [_ | _els],
 			Status, Show, Priority, __Els).
 
 decode_presence_attrs(__TopXMLNS,
-		      [{<<"id">>, _val} | _attrs], _Id, Type, From, To,
-		      Lang) ->
+		      [{<<"id">>, _val} | _attrs], _Id, Type, Title, Action,
+		      From, To, Lang) ->
     decode_presence_attrs(__TopXMLNS, _attrs, _val, Type,
-			  From, To, Lang);
+			  Title, Action, From, To, Lang);
 decode_presence_attrs(__TopXMLNS,
-		      [{<<"type">>, _val} | _attrs], Id, _Type, From, To,
-		      Lang) ->
+		      [{<<"type">>, _val} | _attrs], Id, _Type, Title, Action,
+		      From, To, Lang) ->
     decode_presence_attrs(__TopXMLNS, _attrs, Id, _val,
-			  From, To, Lang);
+			  Title, Action, From, To, Lang);
 decode_presence_attrs(__TopXMLNS,
-		      [{<<"from">>, _val} | _attrs], Id, Type, _From, To,
-		      Lang) ->
+		      [{<<"title">>, _val} | _attrs], Id, Type, _Title,
+		      Action, From, To, Lang) ->
     decode_presence_attrs(__TopXMLNS, _attrs, Id, Type,
-			  _val, To, Lang);
+			  _val, Action, From, To, Lang);
 decode_presence_attrs(__TopXMLNS,
-		      [{<<"to">>, _val} | _attrs], Id, Type, From, _To,
-		      Lang) ->
+		      [{<<"action">>, _val} | _attrs], Id, Type, Title,
+		      _Action, From, To, Lang) ->
     decode_presence_attrs(__TopXMLNS, _attrs, Id, Type,
-			  From, _val, Lang);
+			  Title, _val, From, To, Lang);
 decode_presence_attrs(__TopXMLNS,
-		      [{<<"xml:lang">>, _val} | _attrs], Id, Type, From, To,
-		      _Lang) ->
+		      [{<<"from">>, _val} | _attrs], Id, Type, Title, Action,
+		      _From, To, Lang) ->
     decode_presence_attrs(__TopXMLNS, _attrs, Id, Type,
-			  From, To, _val);
+			  Title, Action, _val, To, Lang);
+decode_presence_attrs(__TopXMLNS,
+		      [{<<"to">>, _val} | _attrs], Id, Type, Title, Action,
+		      From, _To, Lang) ->
+    decode_presence_attrs(__TopXMLNS, _attrs, Id, Type,
+			  Title, Action, From, _val, Lang);
+decode_presence_attrs(__TopXMLNS,
+		      [{<<"xml:lang">>, _val} | _attrs], Id, Type, Title,
+		      Action, From, To, _Lang) ->
+    decode_presence_attrs(__TopXMLNS, _attrs, Id, Type,
+			  Title, Action, From, To, _val);
 decode_presence_attrs(__TopXMLNS, [_ | _attrs], Id,
-		      Type, From, To, Lang) ->
+		      Type, Title, Action, From, To, Lang) ->
     decode_presence_attrs(__TopXMLNS, _attrs, Id, Type,
-			  From, To, Lang);
-decode_presence_attrs(__TopXMLNS, [], Id, Type, From,
-		      To, Lang) ->
+			  Title, Action, From, To, Lang);
+decode_presence_attrs(__TopXMLNS, [], Id, Type, Title,
+		      Action, From, To, Lang) ->
     {decode_presence_attr_id(__TopXMLNS, Id),
      decode_presence_attr_type(__TopXMLNS, Type),
+     decode_presence_attr_title(__TopXMLNS, Title),
+     decode_presence_attr_action(__TopXMLNS, Action),
      decode_presence_attr_from(__TopXMLNS, From),
      decode_presence_attr_to(__TopXMLNS, To),
      'decode_presence_attr_xml:lang'(__TopXMLNS, Lang)}.
 
 encode_presence({presence, Id, Type, Lang, From, To,
-		 Show, Status, Priority, __Els, _},
+		 Show, Status, Action, Title, Priority, __Els, _},
 		__TopXMLNS) ->
     __NewTopXMLNS = choose_top_xmlns(<<>>,
 				     [<<"jabber:client">>, <<"jabber:server">>,
@@ -31829,10 +32577,12 @@ encode_presence({presence, Id, Type, Lang, From, To,
     _attrs = 'encode_presence_attr_xml:lang'(Lang,
 					     encode_presence_attr_to(To,
 								     encode_presence_attr_from(From,
-											       encode_presence_attr_type(Type,
-															 encode_presence_attr_id(Id,
-																		 enc_xmlns_attrs(__NewTopXMLNS,
-																				 __TopXMLNS)))))),
+											       encode_presence_attr_action(Action,
+															   encode_presence_attr_title(Title,
+																		      encode_presence_attr_type(Type,
+																						encode_presence_attr_id(Id,
+																									enc_xmlns_attrs(__NewTopXMLNS,
+																											__TopXMLNS)))))))),
     {xmlel, <<"presence">>, _attrs, _els}.
 
 'encode_presence_$status'([], __TopXMLNS, _acc) -> _acc;
@@ -31878,6 +32628,22 @@ decode_presence_attr_type(__TopXMLNS, _val) ->
 encode_presence_attr_type(available, _acc) -> _acc;
 encode_presence_attr_type(_val, _acc) ->
     [{<<"type">>, enc_enum(_val)} | _acc].
+
+decode_presence_attr_title(__TopXMLNS, undefined) ->
+    <<>>;
+decode_presence_attr_title(__TopXMLNS, _val) -> _val.
+
+encode_presence_attr_title(<<>>, _acc) -> _acc;
+encode_presence_attr_title(_val, _acc) ->
+    [{<<"title">>, _val} | _acc].
+
+decode_presence_attr_action(__TopXMLNS, undefined) ->
+    <<>>;
+decode_presence_attr_action(__TopXMLNS, _val) -> _val.
+
+encode_presence_attr_action(<<>>, _acc) -> _acc;
+encode_presence_attr_action(_val, _acc) ->
+    [{<<"action">>, _val} | _acc].
 
 decode_presence_attr_from(__TopXMLNS, undefined) ->
     undefined;
@@ -32067,11 +32833,12 @@ decode_message(__TopXMLNS, __IgnoreEls,
     {Thread, Subject, Body, __Els} =
 	decode_message_els(__TopXMLNS, __IgnoreEls, _els,
 			   undefined, [], [], []),
-    {Id, Type, From, To, Lang} =
+    {Id, Type, From, To, Mechanism, Timestamp, Lang} =
 	decode_message_attrs(__TopXMLNS, _attrs, undefined,
-			     undefined, undefined, undefined, undefined),
-    {message, Id, Type, Lang, From, To, Subject, Body,
-     Thread, __Els, #{}}.
+			     undefined, undefined, undefined, undefined,
+			     undefined, undefined),
+    {message, Id, Type, Lang, From, To, Mechanism,
+     Timestamp, Subject, Body, Thread, __Els, #{}}.
 
 decode_message_els(__TopXMLNS, __IgnoreEls, [], Thread,
 		   Subject, Body, __Els) ->
@@ -32209,43 +32976,55 @@ decode_message_els(__TopXMLNS, __IgnoreEls, [_ | _els],
 
 decode_message_attrs(__TopXMLNS,
 		     [{<<"id">>, _val} | _attrs], _Id, Type, From, To,
-		     Lang) ->
+		     Mechanism, Timestamp, Lang) ->
     decode_message_attrs(__TopXMLNS, _attrs, _val, Type,
-			 From, To, Lang);
+			 From, To, Mechanism, Timestamp, Lang);
 decode_message_attrs(__TopXMLNS,
 		     [{<<"type">>, _val} | _attrs], Id, _Type, From, To,
-		     Lang) ->
+		     Mechanism, Timestamp, Lang) ->
     decode_message_attrs(__TopXMLNS, _attrs, Id, _val, From,
-			 To, Lang);
+			 To, Mechanism, Timestamp, Lang);
 decode_message_attrs(__TopXMLNS,
 		     [{<<"from">>, _val} | _attrs], Id, Type, _From, To,
-		     Lang) ->
+		     Mechanism, Timestamp, Lang) ->
     decode_message_attrs(__TopXMLNS, _attrs, Id, Type, _val,
-			 To, Lang);
+			 To, Mechanism, Timestamp, Lang);
 decode_message_attrs(__TopXMLNS,
 		     [{<<"to">>, _val} | _attrs], Id, Type, From, _To,
-		     Lang) ->
+		     Mechanism, Timestamp, Lang) ->
     decode_message_attrs(__TopXMLNS, _attrs, Id, Type, From,
-			 _val, Lang);
+			 _val, Mechanism, Timestamp, Lang);
+decode_message_attrs(__TopXMLNS,
+		     [{<<"mechanism">>, _val} | _attrs], Id, Type, From, To,
+		     _Mechanism, Timestamp, Lang) ->
+    decode_message_attrs(__TopXMLNS, _attrs, Id, Type, From,
+			 To, _val, Timestamp, Lang);
+decode_message_attrs(__TopXMLNS,
+		     [{<<"timestamp">>, _val} | _attrs], Id, Type, From, To,
+		     Mechanism, _Timestamp, Lang) ->
+    decode_message_attrs(__TopXMLNS, _attrs, Id, Type, From,
+			 To, Mechanism, _val, Lang);
 decode_message_attrs(__TopXMLNS,
 		     [{<<"xml:lang">>, _val} | _attrs], Id, Type, From, To,
-		     _Lang) ->
+		     Mechanism, Timestamp, _Lang) ->
     decode_message_attrs(__TopXMLNS, _attrs, Id, Type, From,
-			 To, _val);
+			 To, Mechanism, Timestamp, _val);
 decode_message_attrs(__TopXMLNS, [_ | _attrs], Id, Type,
-		     From, To, Lang) ->
+		     From, To, Mechanism, Timestamp, Lang) ->
     decode_message_attrs(__TopXMLNS, _attrs, Id, Type, From,
-			 To, Lang);
+			 To, Mechanism, Timestamp, Lang);
 decode_message_attrs(__TopXMLNS, [], Id, Type, From, To,
-		     Lang) ->
+		     Mechanism, Timestamp, Lang) ->
     {decode_message_attr_id(__TopXMLNS, Id),
      decode_message_attr_type(__TopXMLNS, Type),
      decode_message_attr_from(__TopXMLNS, From),
      decode_message_attr_to(__TopXMLNS, To),
+     decode_message_attr_mechanism(__TopXMLNS, Mechanism),
+     decode_message_attr_timestamp(__TopXMLNS, Timestamp),
      'decode_message_attr_xml:lang'(__TopXMLNS, Lang)}.
 
 encode_message({message, Id, Type, Lang, From, To,
-		Subject, Body, Thread, __Els, _},
+		Mechanism, Timestamp, Subject, Body, Thread, __Els, _},
 	       __TopXMLNS) ->
     __NewTopXMLNS = choose_top_xmlns(<<>>,
 				     [<<"jabber:client">>, <<"jabber:server">>,
@@ -32260,12 +33039,14 @@ encode_message({message, Id, Type, Lang, From, To,
 												     __NewTopXMLNS,
 												     [])))),
     _attrs = 'encode_message_attr_xml:lang'(Lang,
-					    encode_message_attr_to(To,
-								   encode_message_attr_from(From,
-											    encode_message_attr_type(Type,
-														     encode_message_attr_id(Id,
-																	    enc_xmlns_attrs(__NewTopXMLNS,
-																			    __TopXMLNS)))))),
+					    encode_message_attr_timestamp(Timestamp,
+									  encode_message_attr_mechanism(Mechanism,
+													encode_message_attr_to(To,
+															       encode_message_attr_from(From,
+																			encode_message_attr_type(Type,
+																						 encode_message_attr_id(Id,
+																									enc_xmlns_attrs(__NewTopXMLNS,
+																											__TopXMLNS)))))))),
     {xmlel, <<"message">>, _attrs, _els}.
 
 'encode_message_$thread'(undefined, __TopXMLNS, _acc) ->
@@ -32336,6 +33117,22 @@ decode_message_attr_to(__TopXMLNS, _val) ->
 encode_message_attr_to(undefined, _acc) -> _acc;
 encode_message_attr_to(_val, _acc) ->
     [{<<"to">>, enc_jid(_val)} | _acc].
+
+decode_message_attr_mechanism(__TopXMLNS, undefined) ->
+    <<>>;
+decode_message_attr_mechanism(__TopXMLNS, _val) -> _val.
+
+encode_message_attr_mechanism(<<>>, _acc) -> _acc;
+encode_message_attr_mechanism(_val, _acc) ->
+    [{<<"mechanism">>, _val} | _acc].
+
+decode_message_attr_timestamp(__TopXMLNS, undefined) ->
+    <<>>;
+decode_message_attr_timestamp(__TopXMLNS, _val) -> _val.
+
+encode_message_attr_timestamp(<<>>, _acc) -> _acc;
+encode_message_attr_timestamp(_val, _acc) ->
+    [{<<"timestamp">>, _val} | _acc].
 
 'decode_message_attr_xml:lang'(__TopXMLNS, undefined) ->
     <<>>;
@@ -32498,6 +33295,140 @@ encode_message_subject_cdata(<<>>, _acc) -> _acc;
 encode_message_subject_cdata(_val, _acc) ->
     [{xmlcdata, _val} | _acc].
 
+decode_kvgroup(__TopXMLNS, __IgnoreEls,
+	       {xmlel, <<"kvgroup">>, _attrs, _els}) ->
+    {Kvgvalue, Kvitems} = decode_kvgroup_els(__TopXMLNS,
+					     __IgnoreEls, _els, <<>>, []),
+    Kvgname = decode_kvgroup_attrs(__TopXMLNS, _attrs,
+				   undefined),
+    {kvgroup, Kvgname, Kvitems, Kvgvalue}.
+
+decode_kvgroup_els(__TopXMLNS, __IgnoreEls, [],
+		   Kvgvalue, Kvitems) ->
+    {decode_kvgroup_cdata(__TopXMLNS, Kvgvalue),
+     lists:reverse(Kvitems)};
+decode_kvgroup_els(__TopXMLNS, __IgnoreEls,
+		   [{xmlcdata, _data} | _els], Kvgvalue, Kvitems) ->
+    decode_kvgroup_els(__TopXMLNS, __IgnoreEls, _els,
+		       <<Kvgvalue/binary, _data/binary>>, Kvitems);
+decode_kvgroup_els(__TopXMLNS, __IgnoreEls,
+		   [{xmlel, <<"kvitem">>, _attrs, _} = _el | _els],
+		   Kvgvalue, Kvitems) ->
+    case get_attr(<<"xmlns">>, _attrs) of
+      <<"">> when __TopXMLNS == <<"jabber:client">> ->
+	  decode_kvgroup_els(__TopXMLNS, __IgnoreEls, _els,
+			     Kvgvalue,
+			     [decode_kvitem(__TopXMLNS, __IgnoreEls, _el)
+			      | Kvitems]);
+      <<"jabber:client">> ->
+	  decode_kvgroup_els(__TopXMLNS, __IgnoreEls, _els,
+			     Kvgvalue,
+			     [decode_kvitem(<<"jabber:client">>, __IgnoreEls,
+					    _el)
+			      | Kvitems]);
+      _ ->
+	  decode_kvgroup_els(__TopXMLNS, __IgnoreEls, _els,
+			     Kvgvalue, Kvitems)
+    end;
+decode_kvgroup_els(__TopXMLNS, __IgnoreEls, [_ | _els],
+		   Kvgvalue, Kvitems) ->
+    decode_kvgroup_els(__TopXMLNS, __IgnoreEls, _els,
+		       Kvgvalue, Kvitems).
+
+decode_kvgroup_attrs(__TopXMLNS,
+		     [{<<"kvgname">>, _val} | _attrs], _Kvgname) ->
+    decode_kvgroup_attrs(__TopXMLNS, _attrs, _val);
+decode_kvgroup_attrs(__TopXMLNS, [_ | _attrs],
+		     Kvgname) ->
+    decode_kvgroup_attrs(__TopXMLNS, _attrs, Kvgname);
+decode_kvgroup_attrs(__TopXMLNS, [], Kvgname) ->
+    decode_kvgroup_attr_kvgname(__TopXMLNS, Kvgname).
+
+encode_kvgroup({kvgroup, Kvgname, Kvitems, Kvgvalue},
+	       __TopXMLNS) ->
+    __NewTopXMLNS = choose_top_xmlns(<<>>,
+				     [<<"jabber:client">>], __TopXMLNS),
+    _els = lists:reverse(encode_kvgroup_cdata(Kvgvalue,
+					      'encode_kvgroup_$kvitems'(Kvitems,
+									__NewTopXMLNS,
+									[]))),
+    _attrs = encode_kvgroup_attr_kvgname(Kvgname,
+					 enc_xmlns_attrs(__NewTopXMLNS,
+							 __TopXMLNS)),
+    {xmlel, <<"kvgroup">>, _attrs, _els}.
+
+'encode_kvgroup_$kvitems'([], __TopXMLNS, _acc) -> _acc;
+'encode_kvgroup_$kvitems'([Kvitems | _els], __TopXMLNS,
+			  _acc) ->
+    'encode_kvgroup_$kvitems'(_els, __TopXMLNS,
+			      [encode_kvitem(Kvitems, __TopXMLNS) | _acc]).
+
+decode_kvgroup_attr_kvgname(__TopXMLNS, undefined) ->
+    <<>>;
+decode_kvgroup_attr_kvgname(__TopXMLNS, _val) -> _val.
+
+encode_kvgroup_attr_kvgname(<<>>, _acc) -> _acc;
+encode_kvgroup_attr_kvgname(_val, _acc) ->
+    [{<<"kvgname">>, _val} | _acc].
+
+decode_kvgroup_cdata(__TopXMLNS, <<>>) -> <<>>;
+decode_kvgroup_cdata(__TopXMLNS, _val) -> _val.
+
+encode_kvgroup_cdata(<<>>, _acc) -> _acc;
+encode_kvgroup_cdata(_val, _acc) ->
+    [{xmlcdata, _val} | _acc].
+
+decode_kvitem(__TopXMLNS, __IgnoreEls,
+	      {xmlel, <<"kvitem">>, _attrs, _els}) ->
+    Kvvalue = decode_kvitem_els(__TopXMLNS, __IgnoreEls,
+				_els, <<>>),
+    Kvkey = decode_kvitem_attrs(__TopXMLNS, _attrs,
+				undefined),
+    {kvitem, Kvkey, Kvvalue}.
+
+decode_kvitem_els(__TopXMLNS, __IgnoreEls, [],
+		  Kvvalue) ->
+    decode_kvitem_cdata(__TopXMLNS, Kvvalue);
+decode_kvitem_els(__TopXMLNS, __IgnoreEls,
+		  [{xmlcdata, _data} | _els], Kvvalue) ->
+    decode_kvitem_els(__TopXMLNS, __IgnoreEls, _els,
+		      <<Kvvalue/binary, _data/binary>>);
+decode_kvitem_els(__TopXMLNS, __IgnoreEls, [_ | _els],
+		  Kvvalue) ->
+    decode_kvitem_els(__TopXMLNS, __IgnoreEls, _els,
+		      Kvvalue).
+
+decode_kvitem_attrs(__TopXMLNS,
+		    [{<<"kvkey">>, _val} | _attrs], _Kvkey) ->
+    decode_kvitem_attrs(__TopXMLNS, _attrs, _val);
+decode_kvitem_attrs(__TopXMLNS, [_ | _attrs], Kvkey) ->
+    decode_kvitem_attrs(__TopXMLNS, _attrs, Kvkey);
+decode_kvitem_attrs(__TopXMLNS, [], Kvkey) ->
+    decode_kvitem_attr_kvkey(__TopXMLNS, Kvkey).
+
+encode_kvitem({kvitem, Kvkey, Kvvalue}, __TopXMLNS) ->
+    __NewTopXMLNS = choose_top_xmlns(<<>>,
+				     [<<"jabber:client">>], __TopXMLNS),
+    _els = encode_kvitem_cdata(Kvvalue, []),
+    _attrs = encode_kvitem_attr_kvkey(Kvkey,
+				      enc_xmlns_attrs(__NewTopXMLNS,
+						      __TopXMLNS)),
+    {xmlel, <<"kvitem">>, _attrs, _els}.
+
+decode_kvitem_attr_kvkey(__TopXMLNS, undefined) -> <<>>;
+decode_kvitem_attr_kvkey(__TopXMLNS, _val) -> _val.
+
+encode_kvitem_attr_kvkey(<<>>, _acc) -> _acc;
+encode_kvitem_attr_kvkey(_val, _acc) ->
+    [{<<"kvkey">>, _val} | _acc].
+
+decode_kvitem_cdata(__TopXMLNS, <<>>) -> <<>>;
+decode_kvitem_cdata(__TopXMLNS, _val) -> _val.
+
+encode_kvitem_cdata(<<>>, _acc) -> _acc;
+encode_kvitem_cdata(_val, _acc) ->
+    [{xmlcdata, _val} | _acc].
+
 decode_iq(__TopXMLNS, __IgnoreEls,
 	  {xmlel, <<"iq">>, _attrs, _els}) ->
     __Els = decode_iq_els(__TopXMLNS, __IgnoreEls, _els,
@@ -32579,11 +33510,10 @@ encode_iq({iq, Id, Type, Lang, From, To, __Els, _},
 																   __TopXMLNS)))))),
     {xmlel, <<"iq">>, _attrs, _els}.
 
-decode_iq_attr_id(__TopXMLNS, undefined) ->
-    erlang:error({xmpp_codec,
-		  {missing_attr, <<"id">>, <<"iq">>, __TopXMLNS}});
+decode_iq_attr_id(__TopXMLNS, undefined) -> <<>>;
 decode_iq_attr_id(__TopXMLNS, _val) -> _val.
 
+encode_iq_attr_id(<<>>, _acc) -> _acc;
 encode_iq_attr_id(_val, _acc) ->
     [{<<"id">>, _val} | _acc].
 
@@ -34119,98 +35049,119 @@ encode_privacy_list_attr_name(_val, _acc) ->
 
 decode_privacy_item(__TopXMLNS, __IgnoreEls,
 		    {xmlel, <<"item">>, _attrs, _els}) ->
-    {Iq, Presence_out, Message, Presence_in} =
+    {Iq, Presence_out, Message, Push, Presence_in} =
 	decode_privacy_item_els(__TopXMLNS, __IgnoreEls, _els,
-				false, false, false, false),
+				false, false, false, false, false),
     {Action, Order, Type, Value} =
 	decode_privacy_item_attrs(__TopXMLNS, _attrs, undefined,
 				  undefined, undefined, undefined),
-    {privacy_item, Order, Action, Type, Value, Message, Iq,
-     Presence_in, Presence_out}.
+    {privacy_item, Order, Action, Type, Value, Message,
+     Push, Iq, Presence_in, Presence_out}.
 
 decode_privacy_item_els(__TopXMLNS, __IgnoreEls, [], Iq,
-			Presence_out, Message, Presence_in) ->
-    {Iq, Presence_out, Message, Presence_in};
+			Presence_out, Message, Push, Presence_in) ->
+    {Iq, Presence_out, Message, Push, Presence_in};
 decode_privacy_item_els(__TopXMLNS, __IgnoreEls,
 			[{xmlel, <<"message">>, _attrs, _} = _el | _els], Iq,
-			Presence_out, Message, Presence_in) ->
+			Presence_out, Message, Push, Presence_in) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"">> when __TopXMLNS == <<"jabber:iq:privacy">> ->
 	  decode_privacy_item_els(__TopXMLNS, __IgnoreEls, _els,
 				  Iq, Presence_out,
 				  decode_privacy_message(__TopXMLNS,
 							 __IgnoreEls, _el),
-				  Presence_in);
+				  Push, Presence_in);
       <<"jabber:iq:privacy">> ->
 	  decode_privacy_item_els(__TopXMLNS, __IgnoreEls, _els,
 				  Iq, Presence_out,
 				  decode_privacy_message(<<"jabber:iq:privacy">>,
 							 __IgnoreEls, _el),
+				  Push, Presence_in);
+      _ ->
+	  decode_privacy_item_els(__TopXMLNS, __IgnoreEls, _els,
+				  Iq, Presence_out, Message, Push, Presence_in)
+    end;
+decode_privacy_item_els(__TopXMLNS, __IgnoreEls,
+			[{xmlel, <<"push">>, _attrs, _} = _el | _els], Iq,
+			Presence_out, Message, Push, Presence_in) ->
+    case get_attr(<<"xmlns">>, _attrs) of
+      <<"">> when __TopXMLNS == <<"jabber:iq:privacy">> ->
+	  decode_privacy_item_els(__TopXMLNS, __IgnoreEls, _els,
+				  Iq, Presence_out, Message,
+				  decode_privacy_push(__TopXMLNS, __IgnoreEls,
+						      _el),
+				  Presence_in);
+      <<"jabber:iq:privacy">> ->
+	  decode_privacy_item_els(__TopXMLNS, __IgnoreEls, _els,
+				  Iq, Presence_out, Message,
+				  decode_privacy_push(<<"jabber:iq:privacy">>,
+						      __IgnoreEls, _el),
 				  Presence_in);
       _ ->
 	  decode_privacy_item_els(__TopXMLNS, __IgnoreEls, _els,
-				  Iq, Presence_out, Message, Presence_in)
+				  Iq, Presence_out, Message, Push, Presence_in)
     end;
 decode_privacy_item_els(__TopXMLNS, __IgnoreEls,
 			[{xmlel, <<"iq">>, _attrs, _} = _el | _els], Iq,
-			Presence_out, Message, Presence_in) ->
+			Presence_out, Message, Push, Presence_in) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"">> when __TopXMLNS == <<"jabber:iq:privacy">> ->
 	  decode_privacy_item_els(__TopXMLNS, __IgnoreEls, _els,
 				  decode_privacy_iq(__TopXMLNS, __IgnoreEls,
 						    _el),
-				  Presence_out, Message, Presence_in);
+				  Presence_out, Message, Push, Presence_in);
       <<"jabber:iq:privacy">> ->
 	  decode_privacy_item_els(__TopXMLNS, __IgnoreEls, _els,
 				  decode_privacy_iq(<<"jabber:iq:privacy">>,
 						    __IgnoreEls, _el),
-				  Presence_out, Message, Presence_in);
+				  Presence_out, Message, Push, Presence_in);
       _ ->
 	  decode_privacy_item_els(__TopXMLNS, __IgnoreEls, _els,
-				  Iq, Presence_out, Message, Presence_in)
+				  Iq, Presence_out, Message, Push, Presence_in)
     end;
 decode_privacy_item_els(__TopXMLNS, __IgnoreEls,
 			[{xmlel, <<"presence-in">>, _attrs, _} = _el | _els],
-			Iq, Presence_out, Message, Presence_in) ->
+			Iq, Presence_out, Message, Push, Presence_in) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"">> when __TopXMLNS == <<"jabber:iq:privacy">> ->
 	  decode_privacy_item_els(__TopXMLNS, __IgnoreEls, _els,
-				  Iq, Presence_out, Message,
+				  Iq, Presence_out, Message, Push,
 				  decode_privacy_presence_in(__TopXMLNS,
 							     __IgnoreEls, _el));
       <<"jabber:iq:privacy">> ->
 	  decode_privacy_item_els(__TopXMLNS, __IgnoreEls, _els,
-				  Iq, Presence_out, Message,
+				  Iq, Presence_out, Message, Push,
 				  decode_privacy_presence_in(<<"jabber:iq:privacy">>,
 							     __IgnoreEls, _el));
       _ ->
 	  decode_privacy_item_els(__TopXMLNS, __IgnoreEls, _els,
-				  Iq, Presence_out, Message, Presence_in)
+				  Iq, Presence_out, Message, Push, Presence_in)
     end;
 decode_privacy_item_els(__TopXMLNS, __IgnoreEls,
 			[{xmlel, <<"presence-out">>, _attrs, _} = _el | _els],
-			Iq, Presence_out, Message, Presence_in) ->
+			Iq, Presence_out, Message, Push, Presence_in) ->
     case get_attr(<<"xmlns">>, _attrs) of
       <<"">> when __TopXMLNS == <<"jabber:iq:privacy">> ->
 	  decode_privacy_item_els(__TopXMLNS, __IgnoreEls, _els,
 				  Iq,
 				  decode_privacy_presence_out(__TopXMLNS,
 							      __IgnoreEls, _el),
-				  Message, Presence_in);
+				  Message, Push, Presence_in);
       <<"jabber:iq:privacy">> ->
 	  decode_privacy_item_els(__TopXMLNS, __IgnoreEls, _els,
 				  Iq,
 				  decode_privacy_presence_out(<<"jabber:iq:privacy">>,
 							      __IgnoreEls, _el),
-				  Message, Presence_in);
+				  Message, Push, Presence_in);
       _ ->
 	  decode_privacy_item_els(__TopXMLNS, __IgnoreEls, _els,
-				  Iq, Presence_out, Message, Presence_in)
+				  Iq, Presence_out, Message, Push, Presence_in)
     end;
 decode_privacy_item_els(__TopXMLNS, __IgnoreEls,
-			[_ | _els], Iq, Presence_out, Message, Presence_in) ->
+			[_ | _els], Iq, Presence_out, Message, Push,
+			Presence_in) ->
     decode_privacy_item_els(__TopXMLNS, __IgnoreEls, _els,
-			    Iq, Presence_out, Message, Presence_in).
+			    Iq, Presence_out, Message, Push, Presence_in).
 
 decode_privacy_item_attrs(__TopXMLNS,
 			  [{<<"action">>, _val} | _attrs], _Action, Order, Type,
@@ -34244,7 +35195,7 @@ decode_privacy_item_attrs(__TopXMLNS, [], Action, Order,
      decode_privacy_item_attr_value(__TopXMLNS, Value)}.
 
 encode_privacy_item({privacy_item, Order, Action, Type,
-		     Value, Message, Iq, Presence_in, Presence_out},
+		     Value, Message, Push, Iq, Presence_in, Presence_out},
 		    __TopXMLNS) ->
     __NewTopXMLNS =
 	choose_top_xmlns(<<"jabber:iq:privacy">>, [],
@@ -34255,9 +35206,11 @@ encode_privacy_item({privacy_item, Order, Action, Type,
 										       __NewTopXMLNS,
 										       'encode_privacy_item_$message'(Message,
 														      __NewTopXMLNS,
-														      'encode_privacy_item_$presence_in'(Presence_in,
-																			 __NewTopXMLNS,
-																			 []))))),
+														      'encode_privacy_item_$push'(Push,
+																		  __NewTopXMLNS,
+																		  'encode_privacy_item_$presence_in'(Presence_in,
+																						     __NewTopXMLNS,
+																						     [])))))),
     _attrs = encode_privacy_item_attr_value(Value,
 					    encode_privacy_item_attr_type(Type,
 									  encode_privacy_item_attr_order(Order,
@@ -34285,6 +35238,11 @@ encode_privacy_item({privacy_item, Order, Action, Type,
 'encode_privacy_item_$message'(Message, __TopXMLNS,
 			       _acc) ->
     [encode_privacy_message(Message, __TopXMLNS) | _acc].
+
+'encode_privacy_item_$push'(false, __TopXMLNS, _acc) ->
+    _acc;
+'encode_privacy_item_$push'(Push, __TopXMLNS, _acc) ->
+    [encode_privacy_push(Push, __TopXMLNS) | _acc].
 
 'encode_privacy_item_$presence_in'(false, __TopXMLNS,
 				   _acc) ->
@@ -34382,6 +35340,18 @@ encode_privacy_iq(true, __TopXMLNS) ->
     _els = [],
     _attrs = enc_xmlns_attrs(__NewTopXMLNS, __TopXMLNS),
     {xmlel, <<"iq">>, _attrs, _els}.
+
+decode_privacy_push(__TopXMLNS, __IgnoreEls,
+		    {xmlel, <<"push">>, _attrs, _els}) ->
+    true.
+
+encode_privacy_push(true, __TopXMLNS) ->
+    __NewTopXMLNS =
+	choose_top_xmlns(<<"jabber:iq:privacy">>, [],
+			 __TopXMLNS),
+    _els = [],
+    _attrs = enc_xmlns_attrs(__NewTopXMLNS, __TopXMLNS),
+    {xmlel, <<"push">>, _attrs, _els}.
 
 decode_privacy_message(__TopXMLNS, __IgnoreEls,
 		       {xmlel, <<"message">>, _attrs, _els}) ->

@@ -50,6 +50,13 @@
            result = '$cdata',
            cdata = #cdata{required = true, label = '$cdata'}}).
 
+%%example
+%%<query xmlns='jabber:iq:roster'>
+%%  <item jid='romeo@example.net'
+%%  name='Romeo'
+%%  subscription='both'>
+%%  <group>Friends</group>
+%%  </item>
 -xml(roster_item,
      #elem{name = <<"item">>,
            xmlns = <<"jabber:iq:roster">>,
@@ -84,6 +91,8 @@
 
 -xml(privacy_message, #elem{name = <<"message">>, xmlns = <<"jabber:iq:privacy">>,
                             result = true}).
+-xml(privacy_push, #elem{name = <<"push">>, xmlns = <<"jabber:iq:privacy">>,
+                       result = true}).
 -xml(privacy_iq, #elem{name = <<"iq">>, xmlns = <<"jabber:iq:privacy">>,
                        result = true}).
 -xml(privacy_presence_in, #elem{name = <<"presence-in">>,
@@ -97,7 +106,7 @@
      #elem{name = <<"item">>,
            xmlns = <<"jabber:iq:privacy">>,
            result = {privacy_item, '$order', '$action', '$type', '$value',
-		     '$message', '$iq', '$presence_in', '$presence_out'},
+		     '$message', '$push', '$iq', '$presence_in', '$presence_out'},
            attrs = [#attr{name = <<"action">>,
                           required = true,
                           dec = {dec_enum, [[allow, deny]]},
@@ -112,6 +121,8 @@
                     #attr{name = <<"value">>}],
            refs = [#ref{name = privacy_message, default = false,
 			min = 0, max = 1, label = '$message'},
+                   #ref{name = privacy_push, default = false,
+			min = 0, max = 1, label = '$push'},
                    #ref{name = privacy_iq, default = false,
 			min = 0, max = 1, label = '$iq'},
                    #ref{name = privacy_presence_in, default = false,
@@ -204,6 +215,13 @@
            attrs = [#attr{name = <<"var">>,
                           required = true}]}).
 
+%%example
+%%<iq type='get'
+%%from='romeo@montague.net/orchard'
+%%to='plays.shakespeare.lit'
+%%id='info1'>
+%%<query xmlns='http://jabber.org/protocol/disco#info'/>
+%%</iq>
 -xml(disco_info,
      #elem{name = <<"query">>,
            xmlns = <<"http://jabber.org/protocol/disco#info">>,
@@ -216,6 +234,25 @@
                    #ref{name = xdata,
                         label = '$xdata'}]}).
 
+
+%%example
+%%<iq type='get' from='romeo@montague.net/orchard'
+%%to='shakespeare.lit'
+%%id='items1'>
+%%  <query xmlns='http://jabber.org/protocol/disco#items'/>
+%%</iq>
+%%<iq type='result' from='shakespeare.lit' to='romeo@montague.net/orchard' id='items1'>
+%%  <query xmlns='http://jabber.org/protocol/disco#items'>
+%%    <item jid='people.shakespeare.lit' name='Directory of Characters'/>
+%%    <item jid='plays.shakespeare.lit' name='Play-Specific Chatrooms'/>
+%%    <item jid='mim.shakespeare.lit' name='Gateway to Marlowe IM'/>
+%%    <item jid='words.shakespeare.lit' name='Shakespearean Lexicon'/>
+%%    <item jid='globe.shakespeare.lit' name='Calendar of Performances'/>
+%%    <item jid='headlines.shakespeare.lit' name='Latest Shakespearean News'/>
+%%    <item jid='catalog.shakespeare.lit' name='Buy Shakespeare Stuff!'/>
+%%    <item jid='en2fr.shakespeare.lit' name='French Translation Service'/>
+%%  </query>
+%%</iq>
 -xml(disco_item,
      #elem{name = <<"item">>,
            xmlns = <<"http://jabber.org/protocol/disco#items">>,
@@ -340,7 +377,7 @@
 		    <<"jabber:component:accept">>],
            result = {iq, '$id', '$type', '$lang', '$from', '$to', '$_els', '$_'},
            attrs = [#attr{name = <<"id">>,
-                          required = true},
+                          required = false},
                     #attr{name = <<"type">>,
                           required = true,
                           enc = {enc_enum, []},
@@ -353,6 +390,40 @@
                           enc = {enc_jid, []}},
                     #attr{name = <<"xml:lang">>,
                           label = '$lang'}]}).
+
+%% qingquan learn from message_body
+-record(kvitem, {
+   kvkey = <<>> :: binary(),
+   kvvalue = <<>> :: binary()
+}).
+-record(kvgroup, {
+   kvgname = <<>> ::  binary(),
+   kvitems = [] :: [#kvitem{}],
+   kvgvalue = <>> :: binary()
+}).
+-type kvitem() :: #kvitem{}.
+
+
+%% -type kvgroup() :: #kvgroup{}.  %%here define this will cause spec build error
+
+
+-xml(kvitem,
+     #elem{name = <<"kvitem">>,
+           xmlns = [<<"jabber:client">>],
+           result = {kvitem, '$kvkey', '$kvvalue'},
+           cdata = #cdata{label = '$kvvalue'},
+           attrs = [#attr{name = <<"kvkey">>, label = '$kvkey'}]
+  }).
+-xml(kvgroup,
+  #elem{name = <<"kvgroup">>,
+           xmlns = [<<"jabber:client">>],
+           result = {kvgroup, '$kvgname', '$kvitems', '$kvgvalue'},
+           cdata = #cdata{label = '$kvgvalue'},
+           attrs = [#attr{name = <<"kvgname">>, label = '$kvgname'}],
+           refs = [#ref{name = kvitem, label = '$kvitems'}]
+  }).
+%% qingquan end
+
 
 -xml(message_subject,
      #elem{name = <<"subject">>,
@@ -381,6 +452,8 @@
                   lang = <<>> :: binary(),
                   from :: undefined | jid:jid(),
                   to :: undefined | jid:jid(),
+                  mechanism = <<>> :: binary(),
+                  timestamp = <<>> :: binary(),
                   subject = [] :: [#text{}],
                   body = [] :: [#text{}],
                   thread :: undefined | binary(),
@@ -392,7 +465,7 @@
      #elem{name = <<"message">>,
            xmlns = [<<"jabber:client">>, <<"jabber:server">>,
 		    <<"jabber:component:accept">>],
-           result = {message, '$id', '$type', '$lang', '$from', '$to',
+           result = {message, '$id', '$type', '$lang', '$from', '$to', '$mechanism', '$timestamp',
                      '$subject', '$body', '$thread', '$_els', '$_'},
            attrs = [#attr{name = <<"id">>},
                     #attr{name = <<"type">>,
@@ -405,6 +478,8 @@
                     #attr{name = <<"to">>,
                           dec = {dec_jid, []},
                           enc = {enc_jid, []}},
+                    #attr{name= <<"mechanism">>},
+                    #attr{name= <<"timestamp">>},
                     #attr{name = <<"xml:lang">>,
                           label = '$lang'}],
            refs = [#ref{name = message_subject, label = '$subject'},
@@ -443,6 +518,8 @@
                    to :: undefined | jid:jid(),
                    show :: undefined | 'away' | 'chat' | 'dnd' | 'xa',
                    status = [] :: [#text{}],
+                   action = <<>> :: binary(),
+                   title = <<>> :: binary(),
                    priority :: undefined | integer(),
                    sub_els = [] :: [xmpp_element() | fxml:xmlel()],
 		   meta = #{} :: map()}).
@@ -453,7 +530,7 @@
            xmlns = [<<"jabber:client">>, <<"jabber:server">>,
 		    <<"jabber:component:accept">>],
            result = {presence, '$id', '$type', '$lang', '$from', '$to',
-                     '$show', '$status', '$priority', '$_els', '$_'},
+                     '$show', '$status', '$action', '$title', '$priority', '$_els', '$_'},
            attrs = [#attr{name = <<"id">>},
                     #attr{name = <<"type">>,
 			  default = available,
@@ -461,6 +538,8 @@
                           dec = {dec_enum, [[unavailable, subscribe, subscribed,
                                              unsubscribe, unsubscribed,
                                              available, probe, error]]}},
+                    #attr{name = <<"title">>,label='$title',required = false},
+                    #attr{name = <<"action">>,label='$action',required = false},
                     #attr{name = <<"from">>,
                           dec = {dec_jid, []},
                           enc = {enc_jid, []}},
@@ -641,6 +720,37 @@
                         min = 0, max = 1, label = '$reason'},
                    #ref{name = error_unexpected_request,
                         min = 0, max = 1, label = '$reason'}]}).
+
+%%extra_add
+-xml(push_info_device,
+     #elem{name = <<"device">>,
+           xmlns = <<"https://android.googleapis.com/gcm">>,
+           result = '$cdata',
+           cdata = #cdata{dec = {resourceprep, []},
+                          enc = {resourceprep, []}}}).
+
+-xml(push_info_token_key,
+     #elem{name = <<"key">>,
+           xmlns = <<"https://android.googleapis.com/gcm">>,
+           result = '$cdata',
+           cdata = #cdata{dec = {resourceprep, []},
+                          enc = {resourceprep, []}}}).
+-xml(push_info_register,
+     #elem{name = <<"register">>,
+           xmlns = <<"https://android.googleapis.com/gcm">>,
+           result = {push_info_register, '$push_info_token_key', '$push_info_device'},
+           refs = [#ref{name = push_info_device,
+                                         label = '$push_info_device',
+                                         min = 0, max = 1},
+                   #ref{name = push_info_token_key,
+                                         min = 0, max = 1,
+           			                     default = <<"">>,
+                                         label = '$push_info_token_key'}]
+           }).
+
+%%example
+%%<iq type='result' id='21'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><jid>subusr1474982471001_stage@ul/call</jid></bind></iq>
+%%<iq type="set" id="21"><bind xmlns="urn:ietf:params:xml:ns:xmpp-bind"><resource>call</resource></bind></iq>
 
 -xml(bind_jid,
      #elem{name = <<"jid">>,
@@ -1143,7 +1253,7 @@
 -xml(stream_error_bad_format,
      #elem{name = <<"bad-format">>,
            result = 'bad-format',
-           xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).       
+           xmlns = <<"urn:ietf:params:xml:ns:xmpp-streams">>}).
 -xml(stream_error_bad_namespace_prefix,
      #elem{name = <<"bad-namespace-prefix">>,
            result = 'bad-namespace-prefix',
@@ -2414,6 +2524,32 @@
                    #ref{name = muc_user_item, label = '$items'},
                    #ref{name = muc_user_status, label = '$status_codes'}]}).
 
+%%-xml(muc_user_ul,
+%%     #elem{name = <<"query">>,
+%%           xmlns = <<"http://jabber.org/protocol/muc#user">>,
+%%           result = {disco_items_ul, '$node', '$items', '$rsm'},
+%%           attrs = [#attr{name = <<"node">>}],
+%%           refs = [#ref{name = muc_user_item,
+%%                        label = '$items'},
+%%		   #ref{name = rsm_set, min = 0, max = 1,
+%%			label = '$rsm'}]}).
+
+-xml(muc_user_ul,
+     #elem{name = <<"query">>,
+           xmlns = <<"http://jabber.org/protocol/muc#user">>,
+           result = {muc_user_ul, '$decline', '$destroy', '$invites',
+                     '$items', '$status_codes', '$password'},
+           refs = [#ref{name = muc_user_decline, min = 0,
+                        max = 1, label = '$decline'},
+                   #ref{name = muc_destroy, min = 0, max = 1,
+                        label = '$destroy'},
+		   #ref{name = muc_password, min = 0, max = 1,
+			label = '$password'},
+                   #ref{name = muc_user_invite, label = '$invites'},
+                   #ref{name = muc_user_item, label = '$items'},
+                   #ref{name = muc_user_status, label = '$status_codes'}]}).
+
+
 -xml(muc_password,
      #elem{name = <<"password">>,
            xmlns = [<<"http://jabber.org/protocol/muc#owner">>,
@@ -3078,6 +3214,10 @@
      #elem{name = <<"offline">>,
 	   xmlns = <<"jabber:x:event">>,
 	   result = true}).
+-xml(xevent_received,
+     #elem{name = <<"received">>,
+	   xmlns = <<"jabber:x:event">>,
+	   result = true}).
 -xml(xevent_delivered,
      #elem{name = <<"delivered">>,
 	   xmlns = <<"jabber:x:event">>,
@@ -3090,25 +3230,40 @@
      #elem{name = <<"composing">>,
 	   xmlns = <<"jabber:x:event">>,
 	   result = true}).
+-xml(xevent_read,
+     #elem{name = <<"read">>,
+	   xmlns = <<"jabber:x:event">>,
+       result = true}).
 -xml(xevent_id,
      #elem{name = <<"id">>,
 	   xmlns = <<"jabber:x:event">>,
 	   cdata = #cdata{},
-           result = '$cdata'}).
+       result = '$cdata'}).
+-xml(xevent_msgid,
+     #elem{name = <<"msgid">>,
+	   xmlns = <<"jabber:x:event">>,
+	   cdata = #cdata{},
+       result = '$cdata'}).
 
 -xml(xevent,
      #elem{name = <<"x">>,
 	   xmlns = <<"jabber:x:event">>,
-	   result = {xevent, '$offline', '$delivered', '$displayed',
-		     '$composing', '$id'},
+	   result = {xevent, '$offline', '$read', '$received' , '$delivered', '$displayed',
+		     '$composing', '$id' , '$msgid'},
 	   refs = [#ref{name = xevent_offline, min = 0, max = 1,
 			label = '$offline', default = false},
+		   #ref{name = xevent_received, min = 0, max = 1,
+			label = '$received', default = false},
 		   #ref{name = xevent_delivered, min = 0, max = 1,
 			label = '$delivered', default = false},
 		   #ref{name = xevent_displayed, min = 0, max = 1,
 			label = '$displayed', default = false},
 		   #ref{name = xevent_composing, min = 0, max = 1,
 			label = '$composing', default = false},
+		   #ref{name = xevent_read, min = 0, max = 1,
+			label = '$read', default = false},
+		   #ref{name = xevent_msgid, min = 0, max = 1,
+			label = '$msgid'},
 		   #ref{name = xevent_id, min = 0, max = 1,
 			label = '$id'}]}).
 
@@ -3553,7 +3708,7 @@ dec_jid(Val) ->
             J
     end.
 
-enc_jid(J) ->            
+enc_jid(J) ->
     jid:to_string(J).
 
 -spec resourceprep(_) -> binary().
